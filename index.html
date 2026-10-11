@@ -190,7 +190,7 @@ room={
 function fire(j,l){if(ph)ph({peers:room.peers(),joined:j,left:l,updated:[]})}
 function setup(c){
   c.on("open",()=>{conns[c.peer]=c;seen[c.peer]=Date.now();
-    if(Object.keys(conns).filter(i=>i!==c.peer).length+1>=maxN){delete conns[c.peer];c.send({t:"full"});setTimeout(()=>{try{c.close()}catch(e){}},400);return}c.send({t:"pr",d:pres});c.send({t:"hist",d:hist.slice(-300)});shareImg();if(cfgv)c.send({t:"cfg",d:cfgv});
+    if(Object.keys(conns).filter(i=>i!==c.peer).length+1>=maxN){delete conns[c.peer];c.send({t:"full"});setTimeout(()=>{try{c.close()}catch(e){}},400);return}c.send({t:"pr",d:pres});c._t0=Date.now();setTimeout(()=>{if(conns[c.peer]===c&&c.open)c.send({t:"pr",d:pres})},1500);c.send({t:"hist",d:hist.slice(-300)});shareImg();if(cfgv)c.send({t:"cfg",d:cfgv});
     if(mic)callTo(c.peer,mic,"mic");if(scr)callTo(c.peer,scr,"scr")});
   c.on("data",m=>{if(!m||!m.t)return;seen[c.peer]=Date.now();if(!conns[c.peer]||!conns[c.peer].open)conns[c.peer]=c;
     if(m.t==="pr"){const o=pmap[c.peer],n=!o,ch=n||JSON.stringify(o)!==JSON.stringify(m.d);pmap[c.peer]=m.d;if(ch)fire(n?[{peer:c.peer,presence:m.d}]:[],[])}
@@ -211,7 +211,7 @@ function claim(n,name){
     p.on("call",c=>{c.answer();const ty=c.metadata&&c.metadata.ty;
       c.on("stream",st=>gotStream(c.peer,ty,st));c.on("close",()=>rmRemote(c.peer,ty))});
     const scan=()=>{for(let k=1;k<=10;k++){if(k===n)continue;const id=base+k;if(!conns[id]&&!pending[id]){pending[id]=1;setTimeout(()=>delete pending[id],6000);setup(p.connect(id,{reliable:true}))}}};
-    scan();setInterval(scan,4000);setInterval(()=>{const now=Date.now();Object.keys(conns).forEach(id=>{const c=conns[id];if(c.open)c.send({t:"pr",d:pres});if(seen[id]&&now-seen[id]>15000){try{c.close()}catch(e){}}})},4000)});
+    scan();setInterval(scan,4000);setInterval(()=>{const now=Date.now();Object.keys(conns).forEach(id=>{const c=conns[id];if(c.open)c.send({t:"pr",d:pres});if((seen[id]&&now-seen[id]>15000)||(!pmap[id]&&c._t0&&now-c._t0>8000)){try{c.close()}catch(e){}}})},4000)});
   p.on("error",e=>{if(e.type==="unavailable-id"){p.destroy();claim(n+1,name)}else if(e.type!=="peer-unavailable"){$("jerr").textContent="연결 오류: "+e.type;$("go").disabled=false}});
   p.on("disconnected",()=>{try{p.reconnect()}catch(e){}})}
 $("go").onclick=()=>{
