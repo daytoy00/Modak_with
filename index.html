@@ -110,6 +110,8 @@ body.nol #tiles{display:none}body.nor #side{display:none}#cft{font-size:11px;col
   <h1>MODAK</h1>
   <label>방 코드 (비밀)<input id="rc" maxlength="30" autocomplete="off"></label>
   <div style="display:flex;gap:8px;margin-top:-4px"><button class="btn" id="rg" type="button" style="font-size:13px;padding:7px 12px">새 코드 만들기</button><button class="btn" id="rl" type="button" style="font-size:13px;padding:7px 12px">초대 링크 복사</button></div><div id="rh" style="font-size:12px;color:var(--m);margin-top:-4px"></div>
+  <div id="jnew" style="display:grid;gap:12px"><label>방 이름 (선택)<input id="jrn" maxlength="20" placeholder="MODAK"></label>
+  <label>최대 인원 <b id="jml" style="color:var(--t);font-weight:600">10명</b><input type="range" id="jmx" min="2" max="10" value="10" style="padding:0;accent-color:var(--a)"></label></div>
   <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진 (눌러서 선택)</span><input type="file" id="pf" accept="image/*" hidden></div>
   <label>닉네임<input id="nn" maxlength="12" placeholder="닉네임"></label>
   <button class="pri" id="go">들어가기 →</button>
@@ -187,7 +189,8 @@ room={
   onPeers(f){ph=f}};
 function fire(j,l){if(ph)ph({peers:room.peers(),joined:j,left:l,updated:[]})}
 function setup(c){
-  c.on("open",()=>{conns[c.peer]=c;seen[c.peer]=Date.now();c.send({t:"pr",d:pres});c.send({t:"hist",d:hist.slice(-300)});shareImg();c.send({t:"cfg",d:{max:maxN,rn:$("rn").textContent}});
+  c.on("open",()=>{conns[c.peer]=c;seen[c.peer]=Date.now();
+    if(Object.keys(conns).filter(i=>i!==c.peer).length+1>=maxN){delete conns[c.peer];c.send({t:"full"});setTimeout(()=>{try{c.close()}catch(e){}},400);return}c.send({t:"pr",d:pres});c.send({t:"hist",d:hist.slice(-300)});shareImg();if(cfgv)c.send({t:"cfg",d:cfgv});
     if(mic)callTo(c.peer,mic,"mic");if(scr)callTo(c.peer,scr,"scr")});
   c.on("data",m=>{if(!m||!m.t)return;seen[c.peer]=Date.now();
     if(m.t==="pr"){const o=pmap[c.peer],n=!o,ch=n||JSON.stringify(o)!==JSON.stringify(m.d);pmap[c.peer]=m.d;if(ch)fire(n?[{peer:c.peer,presence:m.d}]:[],[])}
@@ -201,8 +204,9 @@ function claim(n,name){
     $("join").style.display="none";$("app").style.display="flex";
     room.on("chat",m=>merge([m.data]));room.on("hist",m=>merge(m.data));loadChat();
     room.on("avt",m=>{if(m.data&&typeof m.data.img==="string"&&m.data.img.startsWith("data:image/")){if(avs[m.peer]!==m.data.img){avs[m.peer]=m.data.img;fire([],[])}}});
-    room.on("cfg",m=>{if(m.data&&m.data.max){maxN=m.data.max;$("mx").value=maxN;if(m.data.rn)$("rn").textContent=String(m.data.rn).slice(0,20)}fire([],[])});
-    room.onPeers(onPeers);room.presence({name,av,mic:false,share:false});shareImg();setInterval(shareImg,15000);
+    room.on("cfg",m=>{const d=m.data;if(d&&d.max&&(!cfgv||d.ts>cfgv.ts))setCfg(Math.min(10,Math.max(2,+d.max)),String(d.rn||"MODAK").slice(0,20),+d.ts||0)});
+    room.on("full",()=>{try{sessionStorage.setItem("modak_full","1")}catch(e){}location.reload()});
+    room.onPeers(onPeers);room.presence({name,av,mic:false,share:false});if(creatorMode)setCfg(jcfg[0],jcfg[1],Date.now());shareImg();setInterval(shareImg,15000);
     p.on("connection",setup);
     p.on("call",c=>{c.answer();const ty=c.metadata&&c.metadata.ty;
       c.on("stream",st=>gotStream(c.peer,ty,st));c.on("close",()=>rmRemote(c.peer,ty))});
@@ -213,11 +217,12 @@ function claim(n,name){
 $("go").onclick=()=>{
   const code=$("rc").value.trim()||(()=>{const c=rcode();$("rc").value=c;return c})(),name=$("nn").value.trim()||"익명",er=$("jerr");
   if(typeof Peer==="undefined"){er.textContent="PeerJS를 불러오지 못했어요. 인터넷 연결을 확인하세요.";return}
-  er.textContent="연결 중…";$("go").disabled=true;try{localStorage.setItem("modak_nn",name)}catch(e){}av=(name[0]||"?");
+  creatorMode=$("jnew").style.display!=="none";jcfg=[+$("jmx").value,($("jrn").value.trim()||"MODAK").slice(0,20)];er.textContent="연결 중…";$("go").disabled=true;try{localStorage.setItem("modak_nn",name)}catch(e){}av=(name[0]||"?");
   base="wr"+(c=>{let a=5381,b=52711;for(const ch of c.trim().toLowerCase()){const k=ch.codePointAt(0);a=((a*33)^k)|0;b=((b*31)^k)|0}return(a>>>0).toString(36)+(b>>>0).toString(36)})(code)+"s";if(/^[a-z0-9]{6,40}$/.test(code.trim().toLowerCase()))base="wr"+code.trim().toLowerCase()+"s";
   claim(1,name)};
 function self(){return(room.peers().find(p=>p.sameTab)||{}).peer}
-let maxN=10;
+let maxN=10,cfgv=null,creatorMode=false,jcfg=null;
+function setCfg(max,rn,ts){cfgv={max,rn,ts};maxN=max;$("mx").value=max;$("rn").textContent=rn;room.emit("cfg",cfgv);fire([],[])}
 const tmap={};
 function onPeers(c){
   me=self();const ps=c.peers;
@@ -325,14 +330,18 @@ $("bb").onclick=()=>{blurOn=!blurOn;applyBlur()};$("bl").oninput=()=>{if(blurOn)
  for(let i=2;i<=10;i++){const o=document.createElement("div");o.dataset.v=i;o.textContent=i+"명";o.onclick=()=>{v=i;paint();mx.classList.remove("open");mx.onchange&&mx.onchange()};l.appendChild(o)}
  Object.defineProperty(mx,"value",{get:()=>v,set:x=>{v=+x;paint()}});
  b.onclick=e=>{e.stopPropagation();mx.classList.toggle("open")};document.addEventListener("click",()=>mx.classList.remove("open"));paint()}
-$("mx").onchange=()=>{maxN=+$("mx").value;room.emit("cfg",{max:maxN,rn:$("rn").textContent});onPeers({peers:room.peers(),joined:[],left:[]})};
-$("rn").ondblclick=()=>{const v=prompt("방 이름",$("rn").textContent);if(v){$("rn").textContent=v.slice(0,20);room.emit("cfg",{max:maxN,rn:v.slice(0,20)})}};
+$("mx").onchange=()=>setCfg(+$("mx").value,$("rn").textContent,Date.now());
+$("rn").ondblclick=()=>{const v=prompt("방 이름",$("rn").textContent);if(v)setCfg(maxN,v.slice(0,20),Date.now())};
 $("bcode").onclick=()=>{const c=$("rc").value,t=location.protocol.startsWith("http")?location.origin+location.pathname+"?room="+encodeURIComponent(c):c;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>note("초대 링크가 복사됐어요"),()=>note("초대 링크: "+t));setTimeout(()=>note(""),3000)};
 $("be").onclick=()=>location.reload();
 const rcode=()=>{const A="abcdefghjkmnpqrstuvwxyz23456789",a=crypto.getRandomValues(new Uint8Array(10));return[...a].map(x=>A[x%A.length]).join("")};
+const mode=m=>{$("jnew").style.display=m==="new"?"grid":"none"};
 {const q=new URLSearchParams(location.search).get("room");$("rc").value=(q||rcode()).trim().toLowerCase().slice(0,30);
- $("rh").textContent=q?"초대받은 방이에요. 닉네임만 정하고 들어가세요.":"새로 만든 비밀 방이에요. 들어간 뒤 위쪽 ‘초대 링크’로 친구를 초대하세요."}
-$("rg").onclick=()=>{$("rc").value=rcode();$("rh").textContent="새 비밀 방 코드를 만들었어요."};
+ mode(q?"join":"new");$("rh").textContent=q?"초대받은 방이에요. 닉네임만 정하고 들어가세요.":"새 비밀 방을 만들어요. 방 이름과 인원을 정하고 들어가세요.";
+ try{if(sessionStorage.getItem("modak_full")){sessionStorage.removeItem("modak_full");$("jerr").textContent="방이 가득 차서 들어갈 수 없어요."}}catch(e){}}
+$("rc").oninput=()=>{mode("join");$("rh").textContent="이미 만들어진 방에 들어가는 경우예요."};
+$("jmx").oninput=()=>{$("jml").textContent=$("jmx").value+"명"};
+$("rg").onclick=()=>{$("rc").value=rcode();mode("new");$("rh").textContent="새 비밀 방 코드를 만들었어요."};
 $("rl").onclick=()=>{const c=$("rc").value.trim().toLowerCase(),t=location.protocol.startsWith("http")?location.origin+location.pathname+"?room="+encodeURIComponent(c):c;
   (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>$("rh").textContent="초대 링크를 복사했어요. 친구에게 보내세요.",()=>$("rh").textContent="초대 링크: "+t)};
 function onAcc(){const c=(getComputedStyle(document.documentElement).getPropertyValue("--a")||"").trim();if(c[0]!=="#"||c.length<7)return;
