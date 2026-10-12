@@ -184,7 +184,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
   <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진</span><input type="file" id="pf" accept="image/*" hidden></div>
   <label>닉네임<input id="nn" maxlength="12" placeholder="닉네임"></label>
   <button class="pri" id="go">들어가기 →</button>
-  <div style="font-size:11px;color:var(--m);text-align:center">버전 b21</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
+  <div style="font-size:11px;color:var(--m);text-align:center">버전 b22</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
   
 </div>
 <div id="pm"><div id="pb"><div class="hd"><span>프로필 사진 조절</span><button class="ib" id="pxx" data-i="x"></button></div>
@@ -330,6 +330,7 @@ function claim(n,name){
     room.on("avt",m=>{if(m.data&&typeof m.data.img==="string"&&m.data.img.startsWith("data:image/")){if(avs[m.peer]!==m.data.img){avs[m.peer]=m.data.img;fire([],[])}}});
     room.on("cfg",m=>{const d=m.data;if(m.peer!==base+"1"||!d||!d.max)return;if(!cfgv||d.ts>cfgv.ts)setCfg(Math.min(10,Math.max(2,+d.max)),String(d.rn||"MODAK").slice(0,20),+d.ts||0,false)});
     room.on("music",m=>applyMusicEvent(m.data,false));
+    loadYouTubeAPI();
     room.on("full",()=>{try{sessionStorage.setItem("modak_full","1")}catch(e){}location.reload()});
     room.onPeers(onPeers);room.presence({name,av,mic:false,share:false});refreshOwnerUI();if(isRoomOwner()&&creatorMode)setCfg(jcfg[0],jcfg[1],Date.now());shareImg();setInterval(shareImg,15000);
     p.on("connection",setup);
@@ -557,6 +558,14 @@ onAcc();
 // Shared YouTube playlist: PeerJS sends small JSON queue snapshots, not streamed audio.
 // Music is rendered locally by each person's browser. Playback volumes remain private.
 let ytPlayer=null,ytReady=false,ytApiLoading=false,ytCurrentId="",ytCurrentKey="",queueChangeLock=false,finishedMusicKeys=new Set();
+let musicAutoplayBlocked=false;
+function tryResumeRoomMusic(){
+  if(!musicState.playing||!ytReady||!ytPlayer)return;
+  try{ytPlayer.setVolume(+( $("musicVolume").value));ytPlayer.unMute();ytPlayer.playVideo();musicAutoplayBlocked=false}catch(e){}
+}
+// A gesture anywhere in the room can release a browser autoplay block, without another Play click.
+document.addEventListener("pointerdown",()=>{if(musicAutoplayBlocked)tryResumeRoomMusic()},{passive:true});
+document.addEventListener("keydown",()=>{if(musicAutoplayBlocked)tryResumeRoomMusic()});
 let musicState={items:[],current:"",pos:0,at:0,playing:false,ts:0,by:""},musicVersion=0;
 const musicVolume=Number(ld("musicVolume")??45);
 $("musicVolume").value=Math.max(0,Math.min(100,musicVolume));
@@ -583,11 +592,12 @@ function createYT(){
   if(ytPlayer||!window.YT||!YT.Player)return;
   ytPlayer=new YT.Player("ytPlayer",{height:"180",width:"300",playerVars:{playsinline:1,controls:1,rel:0,origin:location.origin},events:{
     onReady:()=>{ytReady=true;ytPlayer.setVolume(+( $("musicVolume").value));syncYT(musicState)},
+    onAutoplayBlocked:()=>{musicAutoplayBlocked=true;musicMsg("브라우저가 소리 재생을 차단했어요. 화면을 한 번 클릭하면 음악을 이어서 재생해요.")},
     onStateChange:e=>{
       // The first room member may be blocked by browser autoplay policy.
       // Any participant who genuinely reaches ENDED can advance the shared queue.
       if(e.data===YT.PlayerState.ENDED){consumeFinishedMusic(ytCurrentKey,ytCurrentId)}
-      if(e.data===YT.PlayerState.PLAYING)musicMsg("함께 재생 중");
+      if(e.data===YT.PlayerState.PLAYING){musicAutoplayBlocked=false;musicMsg("함께 재생 중")}
       if(e.data===YT.PlayerState.UNSTARTED&&musicState.playing)musicMsg("재생 준비 중 · 자동재생이 차단되면 플레이어에서 ▶를 눌러주세요.");
     },
     onError:()=>musicMsg("영상 삽입이 제한되었거나 재생할 수 없어요. 목록에서 다른 곡을 선택해주세요.")
@@ -609,7 +619,7 @@ function syncYT(s){
     queueChangeLock=true;
     if(changed){
       ytCurrentId=id;ytCurrentKey=s.current;
-      if(s.playing)ytPlayer.loadVideoById({videoId:id,startSeconds:pos});
+      if(s.playing){ytPlayer.loadVideoById({videoId:id,startSeconds:pos});setTimeout(()=>{if(musicState.playing&&ytCurrentKey===s.current&&ytReady){try{if(ytPlayer.getPlayerState()!==YT.PlayerState.PLAYING)ytPlayer.playVideo()}catch(e){}}},750)}
       else ytPlayer.cueVideoById({videoId:id,startSeconds:pos});
     }else{
       const current=ytPlayer.getCurrentTime()||0;
@@ -618,7 +628,7 @@ function syncYT(s){
       if(!s.playing&&ytPlayer.getPlayerState()===YT.PlayerState.PLAYING)ytPlayer.pauseVideo();
     }
     ytPlayer.setVolume(+$('musicVolume').value);
-    if(s.playing)musicMsg("재생 요청됨 · 소리가 안 나면 플레이어에서 ▶를 눌러주세요.");
+    if(s.playing&&!musicAutoplayBlocked)musicMsg("방 전체에 재생을 요청했어요.");
     else musicMsg("일시정지됨");
     setTimeout(()=>queueChangeLock=false,700);
   }catch(e){queueChangeLock=false;musicMsg("재생 오류: 플레이어에서 재생 버튼을 눌러주세요.")}
