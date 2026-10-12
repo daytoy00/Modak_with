@@ -167,6 +167,12 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
 .qsmall{background:transparent;border:1px solid #ffffff20;border-radius:7px;color:var(--t);width:27px;height:27px;flex:0 0 27px;display:grid;place-items:center;cursor:pointer;padding:0;font-size:13px}
 .qsmall:disabled{opacity:.3;cursor:default}.qnum{color:var(--m);width:17px;text-align:center;font-size:11px;flex:0 0 17px}
 .qempty{padding:12px 6px;text-align:center;color:var(--m);font-size:12px}
+
+/* b18: left/right panel collapse handles appear only on hover or keyboard focus. */
+#tl,#tr{opacity:0;transition:opacity .16s ease;}
+#tl:hover,#tl:focus-visible,#tr:hover,#tr:focus-visible{opacity:1;}
+@media (hover:none){#tl,#tr{opacity:1;}}
+@media (prefers-reduced-motion:reduce){#tl,#tr{transition:none;}}
 </style></head><body>
 <div id="bgi"></div><div id="dim"></div>
 <div id="join">
@@ -178,7 +184,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
   <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진</span><input type="file" id="pf" accept="image/*" hidden></div>
   <label>닉네임<input id="nn" maxlength="12" placeholder="닉네임"></label>
   <button class="pri" id="go">들어가기 →</button>
-  <div style="font-size:11px;color:var(--m);text-align:center">버전 b16</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
+  <div style="font-size:11px;color:var(--m);text-align:center">버전 b18</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
   
 </div>
 <div id="pm"><div id="pb"><div class="hd"><span>프로필 사진 조절</span><button class="ib" id="pxx" data-i="x"></button></div>
@@ -248,7 +254,16 @@ const IP={music:'<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circl
 const ic=n=>'<svg class="i" viewBox="0 0 24 24">'+IP[n]+'</svg>';
 let av="?";
 try{$("nn").value=localStorage.getItem("modak_nn")||""}catch(e){}
-const note=t=>{$("note").textContent=t;$("note").style.display=t?"block":"none"};
+let noteTimer=null;
+const note=t=>{
+  clearTimeout(noteTimer);
+  const el=$("note");el.textContent=t;el.style.display=t?"block":"none";
+  if(!t)return;
+  // Success notices disappear quickly; error notices remain readable.
+  if(/복사했어요|추가했어요|저장했어요|완료/.test(t)){
+    noteTimer=setTimeout(()=>{el.style.display="none";el.textContent=""},1400);
+  }
+};
 let room,me,pcs={},mic=null,scr=null,names={},rtc={iceServers:[{urls:"stun:stun.l.google.com:19302"}]};
 const chunks={};let myImg=(()=>{try{return localStorage.getItem("modak_img")}catch(e){return null}})(),avs={};
 let src=null;
@@ -492,7 +507,7 @@ $("rn").ondblclick=()=>{if(!isRoomOwner())return;const v=prompt("방 이름",$("
 function copyText(t){return navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject(new Error("clipboard"))}
 $("copyRoom").onclick=()=>copyText($("rc").value).then(()=>note("방 코드를 복사했어요"),()=>note("방 코드: "+$("rc").value));
 $("copyInvite").onclick=()=>$("bcode").click();
-$("bcode").onclick=()=>{const c=$("rc").value,t=location.protocol.startsWith("http")?location.origin+location.pathname+"?room="+encodeURIComponent(c):c;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>note("초대 링크가 복사됐어요"),()=>note("초대 링크: "+t));setTimeout(()=>note(""),3000)};
+$("bcode").onclick=()=>{const c=$("rc").value,t=location.protocol.startsWith("http")?location.origin+location.pathname+"?room="+encodeURIComponent(c):c;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>note("초대 링크가 복사됐어요"),()=>note("초대 링크: "+t));};
 $("be").onclick=()=>location.reload();
 let ac=null,lastBeep=0;
 const snd={chat:{on:ld("chatOn")!=="0",vol:Number(ld("chatVol")??60)},share:{on:ld("shareOn")!=="0",vol:Number(ld("shareVol")??60)}};
@@ -632,11 +647,14 @@ function patchMusic(change){
   applyMusicEvent(next,true)
 }
 function advanceQueue(){
+  // A finished track is consumed exactly once, for everybody in the room.
+  // Only the active playback leader commits this update to avoid duplicates.
   const idx=musicState.items.findIndex(x=>x.key===musicState.current);
   if(idx<0)return;
-  const next=musicState.items[idx+1];
-  if(next)patchMusic({current:next.key,pos:0,playing:true});
-  else patchMusic({pos:0,playing:false})
+  const finished=musicState.items[idx];
+  const remaining=musicState.items.filter(x=>x.key!==finished.key);
+  const following=musicState.items[idx+1];
+  patchMusic({items:remaining,current:following?.key||"",pos:0,playing:!!following});
 }
 $("musicLoad").onclick=()=>{const id=ytId($("musicUrl").value.trim());if(!id){musicMsg("유효한 유튜브 영상 주소를 입력해주세요.");return}
   if(musicState.items.length>=40){musicMsg("재생목록은 최대 40곡까지 추가할 수 있어요.");return}
