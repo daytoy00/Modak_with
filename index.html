@@ -184,7 +184,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
   <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진</span><input type="file" id="pf" accept="image/*" hidden></div>
   <label>닉네임<input id="nn" maxlength="12" placeholder="닉네임"></label>
   <button class="pri" id="go">들어가기 →</button>
-  <div style="font-size:11px;color:var(--m);text-align:center">버전 b18</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
+  <div style="font-size:11px;color:var(--m);text-align:center">버전 b21</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
   
 </div>
 <div id="pm"><div id="pb"><div class="hd"><span>프로필 사진 조절</span><button class="ib" id="pxx" data-i="x"></button></div>
@@ -260,7 +260,7 @@ const note=t=>{
   const el=$("note");el.textContent=t;el.style.display=t?"block":"none";
   if(!t)return;
   // Success notices disappear quickly; error notices remain readable.
-  if(/복사했어요|추가했어요|저장했어요|완료/.test(t)){
+  if(/복사(?:했|됐)어요|추가했어요|저장했어요|완료/.test(t)){
     noteTimer=setTimeout(()=>{el.style.display="none";el.textContent=""},1400);
   }
 };
@@ -369,6 +369,10 @@ function claim(n,name){
 $("go").onclick=()=>{
   const code=$("rc").value.trim()||(()=>{const c=rcode();$("rc").value=c;return c})(),name=$("nn").value.trim()||"익명",er=$("jerr");
   if(typeof Peer==="undefined"){er.textContent="PeerJS를 불러오지 못했어요. 인터넷 연결을 확인하세요.";return}
+  // Bookmark and refresh keep the chosen room, without persisting WebRTC connections.
+  const normalizedCode=code.trim().toLowerCase();
+  try{localStorage.setItem("modak_last_room",normalizedCode)}catch(e){}
+  try{const u=new URL(location.href);u.searchParams.set("room",normalizedCode);history.replaceState(null,"",u.pathname+u.search+u.hash)}catch(e){}
   creatorMode=$("jnew").style.display!=="none";jcfg=[+$("jmx").value,($("jrn").value.trim()||"MODAK").slice(0,20)];er.textContent="연결 중…";$("go").disabled=true;try{localStorage.setItem("modak_nn",name)}catch(e){}av=(name[0]||"?");
   base="wr"+(c=>{let a=5381,b=52711;for(const ch of c.trim().toLowerCase()){const k=ch.codePointAt(0);a=((a*33)^k)|0;b=((b*31)^k)|0}return(a>>>0).toString(36)+(b>>>0).toString(36)})(code)+"s";if(/^[a-z0-9]{6,40}$/.test(code.trim().toLowerCase()))base="wr"+code.trim().toLowerCase()+"s";
   claim(1,name)};
@@ -531,8 +535,12 @@ for(const id of ["chatOpacity","avatarOpacity"])$(id).oninput=()=>{sv(id,$(id).v
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&window._scan){window._scan();if(P&&P.disconnected)try{P.reconnect()}catch(e){}}});
 const rcode=()=>{const A="abcdefghjkmnpqrstuvwxyz23456789",a=crypto.getRandomValues(new Uint8Array(10));return[...a].map(x=>A[x%A.length]).join("")};
 const mode=m=>{$("jnew").style.display=m==="new"?"grid":"none"};
-{const q=new URLSearchParams(location.search).get("room");$("rc").value=(q||rcode()).trim().toLowerCase().slice(0,30);
- mode(q?"join":"new");$("rh").textContent=q?"초대받은 방이에요. 닉네임만 정하고 들어가세요.":"새 비밀 방을 만들어요. 방 이름과 인원을 정하고 들어가세요.";
+{const q=new URLSearchParams(location.search).get("room");
+ // URL has priority for shared/bookmarked links; otherwise restore this browser's last room.
+ let remembered="";try{remembered=localStorage.getItem("modak_last_room")||""}catch(e){}
+ const picked=(q||remembered).trim().toLowerCase().slice(0,30);
+ $("rc").value=picked||rcode();
+ mode(picked?"join":"new");$("rh").textContent="";
  try{if(sessionStorage.getItem("modak_full")){sessionStorage.removeItem("modak_full");$("jerr").textContent="방이 가득 차서 들어갈 수 없어요."}}catch(e){}}
 $("rc").oninput=()=>{mode("join");$("rh").textContent="이미 만들어진 방에 들어가는 경우예요."};
 $("rc").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing){e.preventDefault();$("go").click()}});
@@ -548,7 +556,7 @@ onAcc();
 
 // Shared YouTube playlist: PeerJS sends small JSON queue snapshots, not streamed audio.
 // Music is rendered locally by each person's browser. Playback volumes remain private.
-let ytPlayer=null,ytReady=false,ytApiLoading=false,ytCurrentId="",queueChangeLock=false;
+let ytPlayer=null,ytReady=false,ytApiLoading=false,ytCurrentId="",ytCurrentKey="",queueChangeLock=false,finishedMusicKeys=new Set();
 let musicState={items:[],current:"",pos:0,at:0,playing:false,ts:0,by:""},musicVersion=0;
 const musicVolume=Number(ld("musicVolume")??45);
 $("musicVolume").value=Math.max(0,Math.min(100,musicVolume));
@@ -575,7 +583,13 @@ function createYT(){
   if(ytPlayer||!window.YT||!YT.Player)return;
   ytPlayer=new YT.Player("ytPlayer",{height:"180",width:"300",playerVars:{playsinline:1,controls:1,rel:0,origin:location.origin},events:{
     onReady:()=>{ytReady=true;ytPlayer.setVolume(+( $("musicVolume").value));syncYT(musicState)},
-    onStateChange:e=>{if(e.data===YT.PlayerState.ENDED&&!queueChangeLock&&musicState.playing&&ytCurrentId===activeMusicId()&&amMusicLeader())advanceQueue()},
+    onStateChange:e=>{
+      // The first room member may be blocked by browser autoplay policy.
+      // Any participant who genuinely reaches ENDED can advance the shared queue.
+      if(e.data===YT.PlayerState.ENDED){consumeFinishedMusic(ytCurrentKey,ytCurrentId)}
+      if(e.data===YT.PlayerState.PLAYING)musicMsg("함께 재생 중");
+      if(e.data===YT.PlayerState.UNSTARTED&&musicState.playing)musicMsg("재생 준비 중 · 자동재생이 차단되면 플레이어에서 ▶를 눌러주세요.");
+    },
     onError:()=>musicMsg("영상 삽입이 제한되었거나 재생할 수 없어요. 목록에서 다른 곡을 선택해주세요.")
   }})
 }
@@ -590,14 +604,23 @@ function syncYT(s){
   if(!ytReady||!ytPlayer||!s)return;
   const id=activeMusicId();
   try{
-    if(!id){ytPlayer.stopVideo();ytCurrentId="";return}
-    const pos=musicPosition(s);queueChangeLock=true;
-    if(ytCurrentId!==id){ytCurrentId=id;ytPlayer.cueVideoById({videoId:id,startSeconds:pos})}
-    else{const current=ytPlayer.getCurrentTime()||0;if(Math.abs(current-pos)>4)ytPlayer.seekTo(pos,true)}
+    if(!id){ytPlayer.stopVideo();ytCurrentId="";ytCurrentKey="";return}
+    const pos=musicPosition(s),changed=ytCurrentKey!==s.current||ytCurrentId!==id;
+    queueChangeLock=true;
+    if(changed){
+      ytCurrentId=id;ytCurrentKey=s.current;
+      if(s.playing)ytPlayer.loadVideoById({videoId:id,startSeconds:pos});
+      else ytPlayer.cueVideoById({videoId:id,startSeconds:pos});
+    }else{
+      const current=ytPlayer.getCurrentTime()||0;
+      if(Math.abs(current-pos)>5)ytPlayer.seekTo(pos,true);
+      if(s.playing&&ytPlayer.getPlayerState()!==YT.PlayerState.PLAYING)ytPlayer.playVideo();
+      if(!s.playing&&ytPlayer.getPlayerState()===YT.PlayerState.PLAYING)ytPlayer.pauseVideo();
+    }
     ytPlayer.setVolume(+$('musicVolume').value);
-    if(s.playing){ytPlayer.playVideo();musicMsg("함께 재생 중 · 소리가 안 나면 플레이어에서 재생을 눌러주세요.")}
-    else{ytPlayer.pauseVideo();musicMsg("일시정지됨")}
-    setTimeout(()=>queueChangeLock=false,700)
+    if(s.playing)musicMsg("재생 요청됨 · 소리가 안 나면 플레이어에서 ▶를 눌러주세요.");
+    else musicMsg("일시정지됨");
+    setTimeout(()=>queueChangeLock=false,700);
   }catch(e){queueChangeLock=false;musicMsg("재생 오류: 플레이어에서 재생 버튼을 눌러주세요.")}
 }
 function normalizedMusic(s){
@@ -646,16 +669,28 @@ function patchMusic(change){
   if(!("pos" in change)&&!("current" in change)){next.pos=musicPosition(musicState);next.at=now}
   applyMusicEvent(next,true)
 }
-function advanceQueue(){
-  // A finished track is consumed exactly once, for everybody in the room.
-  // Only the active playback leader commits this update to avoid duplicates.
+function consumeFinishedMusic(key,id){
+  if(!key||!id||!musicState.playing||musicState.current!==key||activeMusicId()!==id)return;
+  if(finishedMusicKeys.has(key))return;
+  finishedMusicKeys.add(key);
+  advanceQueue(key);
+  // Bound memory use during long music sessions.
+  if(finishedMusicKeys.size>80)finishedMusicKeys=new Set([...finishedMusicKeys].slice(-40));
+}
+function advanceQueue(expectedKey){
   const idx=musicState.items.findIndex(x=>x.key===musicState.current);
-  if(idx<0)return;
+  if(idx<0||(expectedKey&&musicState.current!==expectedKey))return;
   const finished=musicState.items[idx];
   const remaining=musicState.items.filter(x=>x.key!==finished.key);
   const following=musicState.items[idx+1];
   patchMusic({items:remaining,current:following?.key||"",pos:0,playing:!!following});
 }
+// Some embedded YouTube players report ENDED via polling more reliably than events.
+// Only consume a track when YouTube itself reports ENDED, never based solely on wall time.
+setInterval(()=>{
+  if(!ytReady||!ytPlayer||!musicState.playing||!ytCurrentKey)return;
+  try{if(ytPlayer.getPlayerState()===YT.PlayerState.ENDED)consumeFinishedMusic(ytCurrentKey,ytCurrentId)}catch(e){}
+},1200);
 $("musicLoad").onclick=()=>{const id=ytId($("musicUrl").value.trim());if(!id){musicMsg("유효한 유튜브 영상 주소를 입력해주세요.");return}
   if(musicState.items.length>=40){musicMsg("재생목록은 최대 40곡까지 추가할 수 있어요.");return}
   const key=(me||"local")+"-"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
