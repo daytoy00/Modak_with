@@ -118,19 +118,37 @@ body.noshare .pt .c{width:84px;height:84px;font-size:36px}
 #hint{display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:3;font-size:12px;color:var(--m);background:#0008;padding:5px 12px;border-radius:12px;white-space:nowrap}body.noshare #hint{display:block}
 body.noshare #tiles,body.noshare.nol #tiles{display:flex;flex-wrap:wrap;justify-content:center;align-content:center;align-items:center;gap:14px;overflow:auto}
 body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
+
+/* MODAK b11: Keep stage / participant / chat proportions unchanged. */
+#cfg,.modak-pop{position:fixed;z-index:8;top:66px;right:18px;width:min(310px,calc(100vw - 24px));max-height:min(600px,calc(100dvh - 82px));overflow:auto;background:#1f2025;border:1px solid #ffffff22;border-radius:15px;padding:4px 14px 12px;box-shadow:0 15px 38px #0005;display:none;font-size:13px}
+.modak-pop section{padding:12px 0;border-bottom:1px solid #fff1}.modak-pop h4{margin:0 0 9px;color:var(--m);font-weight:500;font-size:12px}
+.modak-pop input[type=range]{width:100%;accent-color:var(--a)}.modak-pop .row{display:flex;align-items:center;gap:8px}.modak-pop .row input{min-width:0}.modak-pop .btn{font-size:12px;padding:7px 9px}
+.modak-pop .sw{display:flex;gap:9px;flex-wrap:wrap}.modak-pop .sw input[type=color]{width:30px;height:30px}
+#side{background:rgb(20 21 26 / var(--chat-alpha,1))}
+.pt .c{opacity:var(--avatar-alpha,1)}
+.pt .sharemark{position:absolute;top:6px;right:8px;z-index:2;color:#fff;background:#14151acc;border-radius:6px;padding:2px}.pt .sharemark svg{width:13px;height:13px}
+.tiny-row{display:flex;align-items:center;gap:8px;font-size:12px}.tiny-row span{color:var(--m)}.tiny-row code{flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis}.tiny-row button{margin-left:auto;padding:6px 7px}.share-links{display:grid;gap:10px}
+.audio-person{display:flex;align-items:center;gap:9px;margin:8px 0}.audio-person span{min-width:75px;max-width:95px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.audio-person input{flex:1;min-width:0}
+#bar svg{stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}#bar button{display:grid;place-items:center;transition:background-color .14s ease,color .14s ease}#bar button:hover{filter:brightness(1.08)}#bar button:active{filter:brightness(.95)}
+#bar button svg{display:block} .btnpip{position:absolute;right:44px;top:8px;background:#000a;color:#fff;border:0;border-radius:8px;padding:5px 8px;cursor:pointer}
+#mt .btnfs,#mt .btnpip{opacity:0;transform:translateY(5px);transition:opacity .14s,transform .14s}#mt:hover .btnfs,#mt:hover .btnpip,#mt:focus-within .btnfs,#mt:focus-within .btnpip{opacity:1;transform:none}
+#hint{display:none!important}#bar{left:50%;transform:translateX(-50%)}
+.ib svg{stroke-width:2.1}#themeCfg .sw input[type=color]{border-radius:50%}
+#mx .ddb:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:800px){.modak-pop{top:54px;right:8px;width:min(310px,calc(100vw - 16px))}}
 </style></head><body>
 <div id="bgi"></div><div id="dim"></div>
 <div id="join">
   <h1>MODAK</h1>
   <label>방 코드 (비밀)<input id="rc" maxlength="30" autocomplete="off"></label>
-  <div style="display:flex;gap:8px;margin-top:-4px"><button class="btn" id="rg" type="button" style="font-size:13px;padding:7px 12px">새 코드 만들기</button><button class="btn" id="rl" type="button" style="font-size:13px;padding:7px 12px">초대 링크 복사</button></div><div id="rh" style="font-size:12px;color:var(--m);margin-top:-4px"></div>
+  <div style="display:flex;gap:8px;margin-top:-4px"><button class="btn" id="rg" type="button" style="font-size:13px;padding:7px 12px">새 코드 만들기</button><button class="btn" id="rl" type="button" style="font-size:13px;padding:7px 12px">초대 링크 복사</button></div><div id="rh" style="display:none" aria-live="polite"></div>
   <div id="jnew" style="display:grid;gap:12px"><label>방 이름 (선택)<input id="jrn" maxlength="20" placeholder="MODAK"></label>
   <label>최대 인원 <b id="jml" style="color:var(--t);font-weight:600">10명</b><input type="range" id="jmx" min="2" max="10" value="10" style="padding:0;accent-color:var(--a)"></label></div>
-  <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진 (눌러서 선택)</span><input type="file" id="pf" accept="image/*" hidden></div>
+  <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진</span><input type="file" id="pf" accept="image/*" hidden></div>
   <label>닉네임<input id="nn" maxlength="12" placeholder="닉네임"></label>
   <button class="pri" id="go">들어가기 →</button>
-  <div style="font-size:11px;color:var(--m);text-align:center">버전 b9</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
-  <div style="font-size:12px;color:var(--m)">마이크는 입장 후 버튼으로 켜요. 같은 방 코드를 쓰는 사람끼리 만나요.</div>
+  <div style="font-size:11px;color:var(--m);text-align:center">버전 b11</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
+  
 </div>
 <div id="pm"><div id="pb"><div class="hd"><span>프로필 사진 조절</span><button class="ib" id="pxx" data-i="x"></button></div>
   <canvas id="pc"></canvas><button class="ib" id="pother">다른 사진 선택</button>
@@ -140,34 +158,51 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
   <div class="bt"><button id="pcn">취소</button><button class="ok" id="psv">프로필 저장</button></div></div></div>
 <div id="app">
   <header><div class="logo" data-i="flame"></div><span id="rn">MODAK</span><span class="sp"></span><span id="cnt"></span>
-    <button class="ib" id="bcfg" data-i="menu"></button><button class="ib" id="bcode"><span data-i="copy"></span> 초대 링크</button></header>
+    <button class="ib" id="bcfg" data-i="menu" title="기능"></button><button class="ib" id="baudio" data-i="volume" title="음향"></button><button class="ib" id="btheme" data-i="swatch" title="꾸미기"></button><button class="ib" id="bcode"><span data-i="copy"></span> 초대 링크</button></header>
   <div id="note"></div>
   <main><div id="tiles"></div>
-  <div id="stage"><div id="empty">아직 공유 중인 화면이 없어요.<br>아래 화면공유 버튼을 눌러 시작해요.</div><div class="tile" id="mt" style="display:none"><video autoplay playsinline></video><span class="cap"></span><button class="btnfs"></button></div></div>
+  <div id="stage"><div id="empty">아직 공유 중인 화면이 없어요.<br>아래 화면공유 버튼을 눌러 시작해요.</div><div class="tile" id="mt" style="display:none"><video autoplay playsinline></video><span class="cap"></span><button class="btnpip" title="미니 플레이어">▣</button><button class="btnfs"></button></div></div>
   <aside id="side"><div id="sh"><button class="ib" id="bx" data-i="chevR"></button></div><div id="msgs"></div>
-    <div id="cf"><input id="ci" placeholder="메시지 보내기…" maxlength="500"><button class="btn" id="cs" data-i="up"></button></div><div id="cft">Enter로 보내기 · 채팅을 접어도 대화는 남아요</div></aside></main>
+    <div id="cf"><input id="ci" placeholder="메시지 보내기…" maxlength="500"><button class="btn" id="cs" data-i="up"></button></div></aside></main>
   <button class="tab" id="tl"></button><button class="tab" id="tr"></button>
   <div id="bar"><button id="bm" title="마이크"></button><button id="bs" title="화면·소리 공유"></button><button id="bc" title="채팅"></button><span class="vs"></span><button class="end" id="be" title="나가기"></button></div>
-  <div id="audios"></div><div id="hint">게임 화면은 ‘창’ 말고 ‘전체 화면’으로 공유해야 까맣게 안 나와요</div>
-  <div id="cfg">
+  <div id="audios"></div>
+  <div id="cfg" class="modak-pop">
    <section><h4>프로필</h4><button class="btn" id="bp">프로필 사진 변경</button></section>
-   <section><h4>포인트 색상</h4><div class="sw" data-v="--a"></div></section>
-   <section><h4>화면 공유 흐림</h4><button class="btn" id="bb" style="width:100%">흐림 꺼짐</button><div class="row" style="margin-top:8px"><span style="font-size:13px">농도</span><input type="range" id="bl" min="2" max="40" value="24"></div><div style="font-size:12px;color:var(--m)">공유를 시작하면 다른 사람 화면에도 적용돼요</div></section>
+   
+   <section><h4>화면 공유 흐림</h4><button class="btn" id="bb" style="width:100%">흐림 꺼짐</button><div class="row" style="margin-top:8px"><span style="font-size:13px">농도</span><input type="range" id="bl" min="2" max="40" value="24"></div></section>
+   
    <section><h4>스크롤바 투명도</h4><input type="range" id="sbo" min="10" max="80" value="30"></section>
    <section><h4>좌측 참가자창 크기</h4><input type="range" id="lw" min="150" max="360" value="250"></section>
-   <section><h4>배경 색상</h4><div class="sw" data-v="--bg"></div></section>
-   <section><h4>화면 영역 색상</h4><div class="sw" data-v="--stg"></div></section>
-   <section><h4>글자 색상</h4><div class="sw" data-v="--t"></div></section>
+   
+   
+   
+
+       <section><h4>채팅창 불투명도</h4><input type="range" id="chatOpacity" min="25" max="100" value="100"></section>
+    <section><h4>프로필 투명도</h4><input type="range" id="avatarOpacity" min="30" max="100" value="100"></section>
+    <section><h4>현재 방 최대 인원</h4><div class="row"><div class="dd" id="mx"><button class="ddb" type="button">10명<span data-i="chevD"></span></button><div class="ddl"></div></div></div></section>
+    <section class="share-links"><div class="tiny-row"><span>방 코드</span><code id="roomCodeText"></code><button class="ib" id="copyRoom" title="방 코드 복사" data-i="copy"></button></div><div class="tiny-row"><span>초대 링크</span><button class="ib" id="copyInvite" title="초대 링크 복사" data-i="copy"></button></div></section>
+   </div>
+   <div id="themeCfg" class="modak-pop">
+    <section><h4>배경 색상</h4><div class="sw" data-v="--bg"></div></section>
+    <section><h4>포인트 색상</h4><div class="sw" data-v="--a"></div></section>
+    <section><h4>화면 영역 색상</h4><div class="sw" data-v="--stg"></div></section>
+    <section><h4>글자 색상</h4><div class="sw" data-v="--t"></div></section>
+    <section><h4>아이콘 색상</h4><div class="sw" data-v="--icon"></div></section>
    <section><h4>배경 이미지</h4><div class="row"><input id="bu" placeholder="이미지 링크 붙여넣기"><button class="btn" id="ba">적용</button></div>
      <div class="row" style="margin-top:8px"><button class="btn" id="bf">이미지 추가</button><button class="btn" id="br">제거</button><input type="file" id="bfi" accept="image/*" hidden></div>
      <div class="row" style="margin-top:12px"><span style="font-size:13px">배경 어둡기</span><input type="range" id="bd" min="0" max="90" value="55"></div></section>
-   <section><h4>현재 방 최대 인원</h4><div class="row"><div class="dd" id="mx"><button class="ddb" type="button">10명<span data-i="chevD"></span></button><div class="ddl"></div></div></div></section>
-  </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+   </div>
+   <div id="audioCfg" class="modak-pop">
+    <section><h4>참가자별 음량</h4><div id="participantVolumes"></div></section>
+    <section><h4>채팅 알림</h4><div class="row"><button class="btn" id="chatSound" type="button">켜짐</button><input type="range" id="chatVolume" min="0" max="100" value="60"><button class="ib" id="testChat" title="미리 듣기" data-i="volume"></button></div></section>
+    <section><h4>화면공유 알림</h4><div class="row"><button class="btn" id="shareSound" type="button">켜짐</button><input type="range" id="shareVolume" min="0" max="100" value="60"><button class="ib" id="testShare" title="미리 듣기" data-i="volume"></button></div></section>
+   </div>
+ </div>
+ <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-const IP={mic:'<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>',micoff:'<path d="M1 1l22 22M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6M17 16.95A7 7 0 0 1 5 12v-2M19 10v2a7 7 0 0 1-.11 1.23M12 19v4M8 23h8"/>',screen:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',screenoff:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M3 3l18 18"/>',chat:'<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/>',end:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',headset:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',chevR:'<path d="M9 6l6 6-6 6"/>',chevL:'<path d="M15 6l-6 6 6 6"/>',users:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 6"/>',expand:'<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',chevD:'<path d="M6 9l6 6 6-6"/>',dl:'<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',up:'<path d="M12 19V5M5 12l7-7 7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>'};
+const IP={volume:'<path d="M3 9v6h4l5 4V5L7 9H3zM16 9a5 5 0 0 1 0 6M19 6a9 9 0 0 1 0 12"/>',swatch:'<path d="M4 20V4h5v16H4zM10 20l3-14 5 2-3 12M10 20l10-9 2 4-8 7H4"/><circle cx="6.5" cy="17.5" r=".8"/>',mic:'<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>',micoff:'<path d="M1 1l22 22M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6M17 16.95A7 7 0 0 1 5 12v-2M19 10v2a7 7 0 0 1-.11 1.23M12 19v4M8 23h8"/>',screen:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>',screenoff:'<rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4M3 3l18 18"/>',chat:'<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/>',end:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',headset:'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',chevR:'<path d="M9 6l6 6-6 6"/>',chevL:'<path d="M15 6l-6 6 6 6"/>',users:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 6"/>',expand:'<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>',chevD:'<path d="M6 9l6 6 6-6"/>',dl:'<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',flame:'<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',up:'<path d="M12 19V5M5 12l7-7 7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>'};
 const ic=n=>'<svg class="i" viewBox="0 0 24 24">'+IP[n]+'</svg>';
 let av="?";
 try{$("nn").value=localStorage.getItem("modak_nn")||""}catch(e){}
@@ -193,7 +228,7 @@ $("psv").onclick=()=>{const c=document.createElement("canvas");pdraw(c,64);myImg
 function avNode(peer,fallback){const d=avs[peer];if(d){const i=document.createElement("img");i.src=d;i.className="ai";return i}return document.createTextNode((fallback||"🙂")+" ")}
 function shareImg(){if(myImg&&room)room.emit("avt",{img:myImg})}
 
-let P,conns={},pending={},pmap={},seen={},hd={},ph=null,calls={},base="",pres={name:"",av:"",mic:false,share:false,blur:0};
+let P,conns={},pending={},pmap={},seen={},fails={},nextTry={},pendC={},hd={},ph=null,calls={},base="",pres={name:"",av:"",mic:false,share:false,blur:0};
 const slotOf=id=>parseInt(id.split("s").pop());
 function tick(fn,ms){try{const w=new Worker(URL.createObjectURL(new Blob(["setInterval(()=>postMessage(1),"+ms+")"],{type:"text/javascript"})));w.onmessage=fn}catch(e){setInterval(fn,ms)}}
 room={
@@ -204,7 +239,7 @@ room={
   onPeers(f){ph=f}};
 function fire(j,l){if(ph)ph({peers:room.peers(),joined:j,left:l,updated:[]})}
 function setup(c){
-  c.on("open",()=>{conns[c.peer]=c;seen[c.peer]=Date.now();
+  c.on("open",()=>{conns[c.peer]=c;seen[c.peer]=Date.now();fails[c.peer]=0;nextTry[c.peer]=0;
     if(Object.keys(conns).filter(i=>i!==c.peer).length+1>=maxN){delete conns[c.peer];c.send({t:"full"});setTimeout(()=>{try{c.close()}catch(e){}},400);return}c.send({t:"pr",d:pres});c._t0=Date.now();setTimeout(()=>{if(conns[c.peer]===c&&c.open)c.send({t:"pr",d:pres})},1500);c.send({t:"hist",d:hs2(300)});shareImg();if(cfgv)c.send({t:"cfg",d:cfgv});
     if(mic)callTo(c.peer,mic,"mic");if(scr)callTo(c.peer,scr,"scr")});
   c.on("data",m=>{if(!m||!m.t)return;seen[c.peer]=Date.now();if(!conns[c.peer]||!conns[c.peer].open)conns[c.peer]=c;
@@ -216,19 +251,19 @@ function claim(n,name){
   if(n>10){$("jerr").textContent="방이 가득 찼어요 (최대 10명).";$("go").disabled=false;return}
   const p=new Peer(base+n);P=p;
   p.on("open",id=>{me=id;pmap[me]=pres;
-    $("join").style.display="none";$("app").style.display="flex";
+    $("join").style.display="none";$("app").style.display="flex";$("roomCodeText").textContent=$("rc").value;
     room.on("chat",m=>merge([m.data],true));room.on("hist",m=>merge(m.data));
     room.on("want",m=>{if(scr&&m.peer&&conns[m.peer])callTo(m.peer,scr,"scr")});loadChat();
     room.on("avt",m=>{if(m.data&&typeof m.data.img==="string"&&m.data.img.startsWith("data:image/")){if(avs[m.peer]!==m.data.img){avs[m.peer]=m.data.img;fire([],[])}}});
-    room.on("cfg",m=>{const d=m.data;if(d&&d.max&&(!cfgv||d.ts>cfgv.ts))setCfg(Math.min(10,Math.max(2,+d.max)),String(d.rn||"MODAK").slice(0,20),+d.ts||0)});
+    room.on("cfg",m=>{const d=m.data;if(m.peer!==base+"1"||!d||!d.max)return;if(!cfgv||d.ts>cfgv.ts)setCfg(Math.min(10,Math.max(2,+d.max)),String(d.rn||"MODAK").slice(0,20),+d.ts||0,false)});
     room.on("full",()=>{try{sessionStorage.setItem("modak_full","1")}catch(e){}location.reload()});
-    room.onPeers(onPeers);room.presence({name,av,mic:false,share:false});if(creatorMode)setCfg(jcfg[0],jcfg[1],Date.now());shareImg();setInterval(shareImg,15000);
+    room.onPeers(onPeers);room.presence({name,av,mic:false,share:false});refreshOwnerUI();if(isRoomOwner()&&creatorMode)setCfg(jcfg[0],jcfg[1],Date.now());shareImg();setInterval(shareImg,15000);
     p.on("connection",setup);
     p.on("call",c=>{c.answer();const ty=c.metadata&&c.metadata.ty;recvCalls[c.peer+ty]=c;
-      c.on("stream",st=>gotStream(c.peer,ty,st));c.on("close",()=>{if(recvCalls[c.peer+ty]===c)rmRemote(c.peer,ty)})});
-    const scan=()=>{for(let k=1;k<=10;k++){if(k===n)continue;const id=base+k;if(!conns[id]&&!pending[id]){pending[id]=1;setTimeout(()=>delete pending[id],6000);setup(p.connect(id,{reliable:true}))}}};
+      c.on("stream",st=>gotStream(c.peer,ty,st));c.on("close",()=>{if(recvCalls[c.peer+ty]===c){delete recvCalls[c.peer+ty];rmRemote(c.peer,ty)}})});
+    const scan=()=>{const now=Date.now();for(let k=1;k<=10;k++){if(k===n)continue;const id=base+k;if(!conns[id]&&!pending[id]&&now>(nextTry[id]||0)){pending[id]=1;setTimeout(()=>delete pending[id],6000);const c=p.connect(id,{reliable:true});pendC[id]=c;setup(c);setTimeout(()=>{if(!c.open){try{c.close()}catch(e){}}},7000)}}};
     window._scan=scan;scan();tick(scan,4000);tick(()=>{const now=Date.now();if(P&&P.disconnected&&!P.destroyed){try{P.reconnect()}catch(e){}}Object.keys(conns).forEach(id=>{const c=conns[id];if(c.open)c.send({t:"pr",d:pres});if((seen[id]&&now-seen[id]>((c.peerConnection&&["connected","completed"].includes(c.peerConnection.iceConnectionState))?120000:15000))||(!pmap[id]&&c._t0&&now-c._t0>8000)){try{c.close()}catch(e){}}})},4000);tick(()=>Object.values(conns).forEach(c=>c.open&&c.send({t:"hist",d:hs2(20)})),12000)});
-  p.on("error",e=>{if(e.type==="unavailable-id"){p.destroy();claim(n+1,name)}else if(e.type!=="peer-unavailable"){$("jerr").textContent="연결 오류: "+e.type;$("go").disabled=false}});
+  p.on("error",e=>{if(e.type==="unavailable-id"){p.destroy();claim(n+1,name)}else if(e.type==="peer-unavailable"){const m=/peer ([\w-]+)/.exec(e.message||"");if(m){const id=m[1];fails[id]=(fails[id]||0)+1;nextTry[id]=Date.now()+Math.min(60000,4000*Math.pow(2,fails[id]));try{pendC[id]&&pendC[id].close()}catch(x){}}}else{$("jerr").textContent="연결 오류: "+e.type;$("go").disabled=false}});
   p.on("disconnected",()=>{try{p.reconnect()}catch(e){}})}
 $("go").onclick=()=>{
   const code=$("rc").value.trim()||(()=>{const c=rcode();$("rc").value=c;return c})(),name=$("nn").value.trim()||"익명",er=$("jerr");
@@ -238,21 +273,23 @@ $("go").onclick=()=>{
   claim(1,name)};
 function self(){return(room.peers().find(p=>p.sameTab)||{}).peer}
 let maxN=10,cfgv=null,creatorMode=false,jcfg=null;
-function setCfg(max,rn,ts){cfgv={max,rn,ts};maxN=max;$("mx").value=max;$("rn").textContent=rn;room.emit("cfg",cfgv);fire([],[])}
+function isRoomOwner(){return Boolean(me)&&slotOf(me)===1}
+function refreshOwnerUI(){const owner=isRoomOwner();$("mx").querySelector(".ddb").disabled=!owner;$("mx").title=owner?"최대 인원 변경":"방장만 변경할 수 있어요"}
+function setCfg(max,rn,ts,broadcast=true){cfgv={max,rn,ts};maxN=max;$("mx").value=max;$("rn").textContent=rn;if(broadcast)room.emit("cfg",cfgv);fire([],[])}
 const tmap={};
 function onPeers(c){
-  me=self();const ps=c.peers;
+  me=self();const ps=c.peers;refreshOwnerUI();renderParticipantVolumes();
   $("cnt").textContent=ps.length+" / "+maxN+" 접속 중";
   const box=$("tiles"),ids=new Set();
   ps.forEach(p=>{const id=p.peer,pr=p.presence;ids.add(id);names[id]=pr;
     let t=tmap[id];
     if(!t){t=tmap[id]=document.createElement("div");t.className="pt";t.dataset.id=id;
-      t.innerHTML='<div class="c"></div><span class="n"></span><span class="mi"></span>';
+      t.innerHTML='<div class="c"></div><span class="n"></span><span class="sharemark"></span><span class="mi"></span>';
       t.onclick=()=>{if(streams[id]){sel=id;render()}else if(id===me)editProfile()};box.appendChild(t)}
     t.classList.toggle("me",!!p.sameTab);
-    const ci=t.querySelector(".c"),key=(avs[id]||"")+"|"+(pr.av||"");
+    const ci=t.querySelector(".c");ci.style.opacity=(Number($("avatarOpacity").value)/100).toString();const key=(avs[id]||"")+"|"+(pr.av||"");
     if(t._k!==key){t._k=key;ci.innerHTML="";if(avs[id]){const i=document.createElement("img");i.src=avs[id];ci.appendChild(i)}else ci.textContent=pr.av||"?"}
-    t.querySelector(".n").textContent=(pr.name||"?")+(p.sameTab?" (나)":"");
+    t.querySelector(".n").textContent=(pr.name||"?")+(p.sameTab?" (나)":"")+(pr.away?" · 자리 비움":"");t.querySelector(".sharemark").innerHTML=pr.share?ic("screen"):"";
     const mi=t.querySelector(".mi"),mk=pr.mic?"1":"0";if(mi._m!==mk){mi._m=mk;mi.innerHTML=ic(pr.mic?"mic":"micoff")}
     let v=t.querySelector("video.th");
     if(streams[id]){if(!v){v=document.createElement("video");v.muted=true;v.autoplay=true;v.playsInline=true;v.className="th";t.prepend(v)}
@@ -279,13 +316,15 @@ function render(){const ids=Object.keys(streams);const id=streams[sel]?sel:(ids.
   mt.querySelector(".cap").textContent=id===me?"내 화면":(p.name||"")+"의 화면";v.style.filter=bl?"blur("+bl+"px)":""}
 function chk(){render()}
 
-function callTo(id,st,ty){const k=id+ty;if(calls[k])try{calls[k].close()}catch(e){}calls[k]=P.call(id,st,{metadata:{ty}})}
+function callTo(id,st,ty){const k=id+ty;const old=calls[k];if(old&&old._src===st&&old.open!==false)return;
+  if(old)try{old.close()}catch(e){}const call=P.call(id,st,{metadata:{ty}});if(call){call._src=st;calls[k]=call;call.on("close",()=>{if(calls[k]===call)delete calls[k]})}}
 function addAll(st){const ty=st===mic?"mic":"scr";Object.keys(conns).forEach(id=>callTo(id,st,ty))}
 function rmAll(st){const ty=st===mic?"mic":"scr";Object.keys(calls).filter(k=>k.endsWith(ty)).forEach(k=>{try{calls[k].close()}catch(e){}delete calls[k]})}
-function gotStream(id,ty,st){
-  if(ty==="mic"){let a=document.getElementById("a"+id);if(!a){a=document.createElement("audio");a.id="a"+id;a.autoplay=true;$("audios").appendChild(a)}a.srcObject=st;a.play().catch(()=>{});return}
-  if(streams[id]&&streams[id].id===st.id)return;streams[id]=st;render();fire([],[])}
+function gotStream(id,ty,st){const firstShare=ty!=="mic"&&!streams[id];
+  if(ty==="mic"){let a=document.getElementById("a"+id);if(!a){a=document.createElement("audio");a.id="a"+id;a.autoplay=true;$("audios").appendChild(a)}a.srcObject=st;a.volume=(pvVolumes[id]??Number(ld("v_"+id)??100))/100;a.play().catch(()=>{});return}
+  if(streams[id]&&streams[id].id===st.id)return;streams[id]=st;if(firstShare&&id!==me)beep("share");render();fire([],[])}
 
+$("mt").querySelector(".btnpip").onclick=async()=>{const v=$("mt").querySelector("video");try{if(document.pictureInPictureElement)await document.exitPictureInPicture();else if(v.requestPictureInPicture)await v.requestPictureInPicture();else note("이 브라우저는 미니 플레이어를 지원하지 않아요") }catch(e){note("미니 플레이어를 열 수 없어요")}};
 $("bm").onclick=async()=>{
   if(mic){rmAll(mic);mic.getTracks().forEach(t=>t.stop());mic=null;$("bm").className="";$("mt").querySelector(".btnfs").innerHTML=ic("expand");$("mt").querySelector(".btnfs").onclick=()=>$("mt").requestFullscreen&&$("mt").requestFullscreen();
 $("bm").innerHTML=ic("micoff");room.presence({mic:false});return}
@@ -317,7 +356,7 @@ function renderChat(first){const box=$("msgs"),bot=first||box.scrollHeight-box.s
     const x=document.createElement("div");x.className="mb";x.textContent=m.t;e.append(h,x);box.appendChild(e)});
   if(bot)box.scrollTop=box.scrollHeight}
 function merge(list,live){if(!Array.isArray(list))list=[list];const ids=new Set(hist.map(m=>m.id));let ch=false;
-  list.forEach(m=>{if(m&&m.id&&typeof m.t==="string"&&!ids.has(m.id)){const lo=hist.length?(hist[hist.length-1].o??hist[hist.length-1].ts):0,t0=+m.ts||Date.now();hist.push({id:String(m.id),ts:t0,o:live?Math.max(t0,lo):t0,u:String(m.u||""),n:String(m.n||"").slice(0,20),t:m.t.slice(0,500)});ids.add(m.id);ch=true}});
+  list.forEach(m=>{if(m&&m.id&&typeof m.t==="string"&&!ids.has(m.id)){const lo=hist.length?(hist[hist.length-1].o??hist[hist.length-1].ts):0,t0=+m.ts||Date.now();hist.push({id:String(m.id),ts:t0,o:live?Math.max(t0,lo):t0,u:String(m.u||""),n:String(m.n||"").slice(0,20),t:m.t.slice(0,500)});ids.add(m.id);ch=true;if(live&&String(m.u||"")!==myUid)beep("chat")}});
   if(ch){hist.sort((a,b)=>(a.o??a.ts)-(b.o??b.ts));hist=hist.slice(-500);hsave();renderChat()}}
 function loadChat(){try{hist=JSON.parse(localStorage.getItem("modak_chat"+base)||"[]")}catch(e){hist=[]}renderChat(true)}
 function sendChat(){const t=$("ci").value.trim();if(!t)return;const p=names[me]||pres;room.emit("chat",{id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),ts:Date.now(),u:myUid,n:p.name||"",t});$("ci").value=""}
@@ -325,16 +364,19 @@ $("cs").onclick=sendChat;$("ci").onkeydown=e=>{if(e.key==="Enter"&&!e.isComposin
 
 
 const R=document.documentElement.style;
-const PAL={"--a":["#b7d4a8","#a8c8ea","#e0a8c0","#e8c08e","#b4a7e8"],"--bg":["#17181c","#1b2118","#151c26","#241a22","#251f14","#ffffff"],"--stg":["#121316","#161c14","#111822","#1c1319","#1d1810","#2a2a33"],"--t":["#eceef2","#fff3d6","#ffd6e0","#d6ebff","#d8f0d0","#e4dcff"]};
+const PAL={"--a":["#b7d4a8","#a8c8ea","#e0a8c0","#e8c08e","#b4a7e8"],"--bg":["#17181c","#1b2118","#151c26","#241a22","#251f14","#ffffff"],"--stg":["#121316","#161c14","#111822","#1c1319","#1d1810","#2a2a33"],"--t":["#eceef2","#fff3d6","#ffd6e0","#d6ebff","#d8f0d0","#e4dcff"],"--icon":["#ffe9c9","#ffffff","#17181c","#d6ebff","#ffd6e0","#d8f0d0"]};
 const sv=(k,v)=>{try{localStorage.setItem("modak_"+k,v)}catch(e){}},ld=k=>{try{return localStorage.getItem("modak_"+k)}catch(e){return null}};
-document.querySelectorAll("#cfg .sw").forEach(w=>{const k=w.dataset.v;
+document.querySelectorAll("#themeCfg .sw").forEach(w=>{const k=w.dataset.v;
   const set=v=>{R.setProperty(k,v);sv(k,v);if(k==="--a")onAcc()};
   PAL[k].forEach(c=>{const i=document.createElement("i");i.style.background=c;i.onclick=()=>set(c);w.appendChild(i)});
   const p=document.createElement("input");p.type="color";p.title="직접 선택";p.oninput=()=>set(p.value);w.appendChild(p);
   const o=ld(k);if(o)R.setProperty(k,o)});
 function setBg(u){$("bgi").style.backgroundImage=u?"url("+u+")":"";sv("bgi",u&&u.length<400000?u:"")}
 {const u=ld("bgi");if(u)setBg(u);const d=ld("dim");if(d){$("bd").value=d;R.setProperty("--dim",d/100)}const l=ld("lw");if(l){$("lw").value=l;R.setProperty("--lw",l+"px")}}
-$("bcfg").onclick=()=>{const c=$("cfg");c.style.display=c.style.display==="block"?"none":"block"};
+const popupIds=["cfg","audioCfg","themeCfg"];
+function togglePopup(id){const el=$(id),was=el.style.display==="block";popupIds.forEach(k=>$(k).style.display="none");if(!was){el.style.display="block";const btn=$({cfg:"bcfg",audioCfg:"baudio",themeCfg:"btheme"}[id]);const r=btn.getBoundingClientRect();el.style.right=Math.max(12,Math.min(innerWidth-328,innerWidth-r.right))+"px";}}
+$("bcfg").onclick=()=>togglePopup("cfg");$("baudio").onclick=()=>togglePopup("audioCfg");$("btheme").onclick=()=>togglePopup("themeCfg");
+document.addEventListener("pointerdown",e=>{if(popupIds.some(k=>$(k).contains(e.target))||["bcfg","baudio","btheme"].some(k=>$(k).contains(e.target)))return;popupIds.forEach(k=>$(k).style.display="none")});
 $("lw").oninput=e=>{R.setProperty("--lw",e.target.value+"px");sv("lw",e.target.value)};
 $("bd").oninput=e=>{R.setProperty("--dim",e.target.value/100);sv("dim",e.target.value)};
 $("ba").onclick=()=>{const u=$("bu").value.trim();if(u)setBg(u)};$("br").onclick=()=>setBg("");
@@ -349,10 +391,32 @@ $("bb").onclick=()=>{blurOn=!blurOn;applyBlur()};$("bl").oninput=()=>{if(blurOn)
  for(let i=2;i<=10;i++){const o=document.createElement("div");o.dataset.v=i;o.textContent=i+"명";o.onclick=()=>{v=i;paint();mx.classList.remove("open");mx.onchange&&mx.onchange()};l.appendChild(o)}
  Object.defineProperty(mx,"value",{get:()=>v,set:x=>{v=+x;paint()}});
  b.onclick=e=>{e.stopPropagation();mx.classList.toggle("open")};document.addEventListener("click",()=>mx.classList.remove("open"));paint()}
-$("mx").onchange=()=>setCfg(+$("mx").value,$("rn").textContent,Date.now());
-$("rn").ondblclick=()=>{const v=prompt("방 이름",$("rn").textContent);if(v)setCfg(maxN,v.slice(0,20),Date.now())};
+$("mx").onchange=()=>{if(!isRoomOwner())return refreshOwnerUI();setCfg(+$("mx").value,$("rn").textContent,Date.now())};
+$("rn").ondblclick=()=>{if(!isRoomOwner())return;const v=prompt("방 이름",$("rn").textContent);if(v)setCfg(maxN,v.slice(0,20),Date.now())};
+function copyText(t){return navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject(new Error("clipboard"))}
+$("copyRoom").onclick=()=>copyText($("rc").value).then(()=>note("방 코드를 복사했어요"),()=>note("방 코드: "+$("rc").value));
+$("copyInvite").onclick=()=>$("bcode").click();
 $("bcode").onclick=()=>{const c=$("rc").value,t=location.protocol.startsWith("http")?location.origin+location.pathname+"?room="+encodeURIComponent(c):c;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>note("초대 링크가 복사됐어요"),()=>note("초대 링크: "+t));setTimeout(()=>note(""),3000)};
 $("be").onclick=()=>location.reload();
+let ac=null,lastBeep=0;
+const snd={chat:{on:ld("chatOn")!=="0",vol:Number(ld("chatVol")??60)},share:{on:ld("shareOn")!=="0",vol:Number(ld("shareVol")??60)}};
+function beep(k,preview=false){const s=snd[k];if(!s||!s.on&&!preview||s.vol<=0)return;const now=Date.now();if(!preview&&now-lastBeep<260)return;lastBeep=now;
+ try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume();const g=ac.createGain(),t=ac.currentTime,v=s.vol/100*.20,sh=k==="share";g.connect(ac.destination);
+ (sh?[523,659,784]:[880,1175]).forEach((f,i)=>{const o=ac.createOscillator();o.type="sine";o.frequency.value=f;o.connect(g);const st=t+i*(sh?.11:.09);o.start(st);o.stop(st+(sh?.22:.13))});g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+(sh?.55:.32))}catch(e){}
+}
+for(const [k,b,v,t] of [["chat","chatSound","chatVolume","testChat"],["share","shareSound","shareVolume","testShare"]]){
+ const s=snd[k];$(v).value=s.vol;$(b).textContent=s.on?"켜짐":"꺼짐";
+ $(b).onclick=()=>{s.on=!s.on;sv(k+"On",s.on?"1":"0");$(b).textContent=s.on?"켜짐":"꺼짐"};
+ $(v).oninput=e=>{s.vol=+e.target.value;sv(k+"Vol",s.vol)};$(t).onclick=()=>beep(k,true)
+}
+const pvVolumes={};
+function renderParticipantVolumes(){const box=$("participantVolumes");if(!box)return;const people=room.peers().filter(p=>!p.sameTab);
+ const ids=new Set(people.map(p=>p.peer));box.querySelectorAll("[data-peer]").forEach(el=>{if(!ids.has(el.dataset.peer))el.remove()});
+ people.forEach(p=>{let el=[...box.children].find(x=>x.dataset.peer===p.peer);if(!el){el=document.createElement("label");el.className="audio-person";el.dataset.peer=p.peer;
+ const title=document.createElement("span"),range=document.createElement("input");range.type="range";range.min=0;range.max=100;range.value=Number(ld("v_"+p.peer)??100);range.oninput=()=>{pvVolumes[p.peer]=+range.value;sv("v_"+p.peer,range.value);const a=document.getElementById("a"+p.peer);if(a)a.volume=pvVolumes[p.peer]/100};el.append(title,range);box.appendChild(el)}el.firstChild.textContent=p.presence?.name||"참가자"})}
+$("chatOpacity").value=ld("chatOpacity")??100;$("avatarOpacity").value=ld("avatarOpacity")??100;
+function applyOp(){document.documentElement.style.setProperty("--chat-alpha",$("chatOpacity").value/100);document.documentElement.style.setProperty("--avatar-alpha",$("avatarOpacity").value/100);document.querySelectorAll(".pt .c").forEach(x=>x.style.opacity=$("avatarOpacity").value/100)}
+for(const id of ["chatOpacity","avatarOpacity"])$(id).oninput=()=>{sv(id,$(id).value);applyOp()};applyOp();
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&window._scan){window._scan();if(P&&P.disconnected)try{P.reconnect()}catch(e){}}});
 const rcode=()=>{const A="abcdefghjkmnpqrstuvwxyz23456789",a=crypto.getRandomValues(new Uint8Array(10));return[...a].map(x=>A[x%A.length]).join("")};
 const mode=m=>{$("jnew").style.display=m==="new"?"grid":"none"};
