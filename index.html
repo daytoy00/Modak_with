@@ -136,6 +136,18 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
 .ib svg{stroke-width:2.1}#themeCfg .sw input[type=color]{border-radius:50%}
 #mx .ddb:disabled{opacity:.5;cursor:not-allowed}
 @media(max-width:800px){.modak-pop{top:54px;right:8px;width:min(310px,calc(100vw - 16px))}}
+
+/* b11.1: Keep controls horizontal in narrow popovers. */
+.modak-pop .row{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:9px;min-width:0}
+.modak-pop .row>span,.modak-pop .row>label{flex:0 0 auto;white-space:nowrap;word-break:keep-all}
+.modak-pop .row>input[type=range]{flex:1 1 auto;width:0;min-width:52px;margin:0}
+.modak-pop .row>.btn,.modak-pop .row>.ib{flex:0 0 auto;white-space:nowrap;word-break:keep-all;overflow-wrap:normal;writing-mode:horizontal-tb;min-width:max-content;display:inline-flex;align-items:center;justify-content:center}
+.modak-pop .row>input:not([type=range]){flex:1 1 auto;width:0;min-width:0}
+.modak-pop .row>.dd{flex:1 1 auto;min-width:0}
+.modak-pop .row>.dd .ddb{white-space:nowrap;word-break:keep-all}
+.modak-pop .tiny-row button,.modak-pop .audio-person button{white-space:nowrap;word-break:keep-all}
+#join .btn{white-space:nowrap;word-break:keep-all}
+#join #rg,#join #rl{flex:0 0 auto}
 </style></head><body>
 <div id="bgi"></div><div id="dim"></div>
 <div id="join">
@@ -147,7 +159,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
   <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진</span><input type="file" id="pf" accept="image/*" hidden></div>
   <label>닉네임<input id="nn" maxlength="12" placeholder="닉네임"></label>
   <button class="pri" id="go">들어가기 →</button>
-  <div style="font-size:11px;color:var(--m);text-align:center">버전 b11</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
+  <div style="font-size:11px;color:var(--m);text-align:center">버전 b11.1</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
   
 </div>
 <div id="pm"><div id="pb"><div class="hd"><span>프로필 사진 조절</span><button class="ib" id="pxx" data-i="x"></button></div>
@@ -424,6 +436,7 @@ const mode=m=>{$("jnew").style.display=m==="new"?"grid":"none"};
  mode(q?"join":"new");$("rh").textContent=q?"초대받은 방이에요. 닉네임만 정하고 들어가세요.":"새 비밀 방을 만들어요. 방 이름과 인원을 정하고 들어가세요.";
  try{if(sessionStorage.getItem("modak_full")){sessionStorage.removeItem("modak_full");$("jerr").textContent="방이 가득 차서 들어갈 수 없어요."}}catch(e){}}
 $("rc").oninput=()=>{mode("join");$("rh").textContent="이미 만들어진 방에 들어가는 경우예요."};
+$("rc").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing){e.preventDefault();$("go").click()}});
 $("jmx").oninput=()=>{$("jml").textContent=$("jmx").value+"명"};
 $("rg").onclick=()=>{$("rc").value=rcode();mode("new");$("rh").textContent="새 비밀 방 코드를 만들었어요."};
 $("rl").onclick=()=>{const c=$("rc").value.trim().toLowerCase(),t=location.protocol.startsWith("http")?location.origin+location.pathname+"?room="+encodeURIComponent(c):c;
