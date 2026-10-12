@@ -159,7 +159,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
   <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진</span><input type="file" id="pf" accept="image/*" hidden></div>
   <label>닉네임<input id="nn" maxlength="12" placeholder="닉네임"></label>
   <button class="pri" id="go">들어가기 →</button>
-  <div style="font-size:11px;color:var(--m);text-align:center">버전 b13</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
+  <div style="font-size:11px;color:var(--m);text-align:center">버전 b14</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
   
 </div>
 <div id="pm"><div id="pb"><div class="hd"><span>프로필 사진 조절</span><button class="ib" id="pxx" data-i="x"></button></div>
@@ -271,7 +271,7 @@ function setup(c){
   });
   const gone=()=>{cleanupPending();if(conns[id]!==c)return;
     delete conns[id];delete pmap[id];drop(id);fire([],[{peer:id}]);
-    nextTry[id]=Date.now()+Math.min(60000,7000*Math.pow(2,Math.min(fails[id]||0,3)));
+    nextTry[id]=Date.now()+Math.min(14000,3500*Math.pow(2,Math.min(fails[id]||0,2)));
   };
   c.on("close",gone);c.on("error",gone);
 }
@@ -291,19 +291,19 @@ function claim(n,name){
       c.on("stream",st=>{if(recvCalls[c.peer+ty]===c)gotStream(c.peer,ty,st)});
       const closeIncoming=()=>{if(recvCalls[c.peer+ty]===c){delete recvCalls[c.peer+ty];rmRemote(c.peer,ty)}};
       c.on("close",closeIncoming);c.on("error",closeIncoming)});
-    // Only the lower-numbered participant initiates data channels.
-    // This halves connection attempts and removes opposing duplicate dials.
+    // Newly joined (higher-slot) peers initiate connections to existing lower slots.
+    // This allows late joiners to find the room without waiting for older peers to retry.
     const scan=()=>{
       if(!P||P!==p||p.destroyed||p.disconnected||!p.open)return;
       const now=Date.now();let active=Object.keys(pending).length;
-      for(let k=n+1;k<=maxN&&active<2;k++){
+      for(let k=1;k<n&&active<2;k++){
         const id=base+k;if(conns[id]?.open||pending[id]||now<(nextTry[id]||0))continue;
         pending[id]=now;active++;
         let c;try{c=p.connect(id,{reliable:true})}catch(e){delete pending[id];nextTry[id]=Date.now()+12000;continue}
         pendC[id]=c;setup(c);
         setTimeout(()=>{if(pendC[id]===c&&!c.open){delete pendC[id];delete pending[id];
           fails[id]=(fails[id]||0)+1;
-          nextTry[id]=Date.now()+Math.min(60000,8000*Math.pow(2,Math.min(fails[id],3)));
+          nextTry[id]=Date.now()+Math.min(14000,3500*Math.pow(2,Math.min(fails[id],2)));
           try{c.close()}catch(e){}
         }},12000);
       }
@@ -318,7 +318,7 @@ function claim(n,name){
     },6000);
     tick(()=>Object.values(conns).forEach(c=>c.open&&c.send({t:"hist",d:hs2(20)})),15000);
   });
-  p.on("error",e=>{if(e.type==="unavailable-id"){p.destroy();claim(n+1,name)}else if(e.type==="peer-unavailable"){const m=/peer ([\w-]+)/.exec(e.message||"");if(m){const id=m[1];fails[id]=(fails[id]||0)+1;nextTry[id]=Date.now()+Math.min(60000,8000*Math.pow(2,Math.min(fails[id],3)));try{pendC[id]&&pendC[id].close()}catch(x){}delete pendC[id];delete pending[id]}}else{$("jerr").textContent="연결 오류: "+e.type;$("go").disabled=false}});
+  p.on("error",e=>{if(e.type==="unavailable-id"){p.destroy();claim(n+1,name)}else if(e.type==="peer-unavailable"){const m=/peer ([\w-]+)/.exec(e.message||"");if(m){const id=m[1];fails[id]=(fails[id]||0)+1;nextTry[id]=Date.now()+Math.min(14000,3500*Math.pow(2,Math.min(fails[id],2)));try{pendC[id]&&pendC[id].close()}catch(x){}delete pendC[id];delete pending[id]}}else{$("jerr").textContent="연결 오류: "+e.type;$("go").disabled=false}});
   p.on("disconnected",()=>{try{p.reconnect()}catch(e){}})}
 $("go").onclick=()=>{
   const code=$("rc").value.trim()||(()=>{const c=rcode();$("rc").value=c;return c})(),name=$("nn").value.trim()||"익명",er=$("jerr");
