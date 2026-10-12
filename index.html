@@ -119,7 +119,7 @@ body.noshare .pt .c{width:84px;height:84px;font-size:36px}
 body.noshare #tiles,body.noshare.nol #tiles{display:flex;flex-wrap:wrap;justify-content:center;align-content:center;align-items:center;gap:14px;overflow:auto}
 body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
 
-/* MODAK b11: Keep stage / participant / chat proportions unchanged. */
+/* MODAK b12: Keep stage / participant / chat proportions unchanged. */
 #cfg,.modak-pop{position:fixed;z-index:8;top:66px;right:18px;width:min(310px,calc(100vw - 24px));max-height:min(600px,calc(100dvh - 82px));overflow:auto;background:#1f2025;border:1px solid #ffffff22;border-radius:15px;padding:4px 14px 12px;box-shadow:0 15px 38px #0005;display:none;font-size:13px}
 .modak-pop section{padding:12px 0;border-bottom:1px solid #fff1}.modak-pop h4{margin:0 0 9px;color:var(--m);font-weight:500;font-size:12px}
 .modak-pop input[type=range]{width:100%;accent-color:var(--a)}.modak-pop .row{display:flex;align-items:center;gap:8px}.modak-pop .row input{min-width:0}.modak-pop .btn{font-size:12px;padding:7px 9px}
@@ -137,7 +137,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
 #mx .ddb:disabled{opacity:.5;cursor:not-allowed}
 @media(max-width:800px){.modak-pop{top:54px;right:8px;width:min(310px,calc(100vw - 16px))}}
 
-/* b11.1: Keep controls horizontal in narrow popovers. */
+/* b12: Keep controls horizontal in narrow popovers. */
 .modak-pop .row{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:9px;min-width:0}
 .modak-pop .row>span,.modak-pop .row>label{flex:0 0 auto;white-space:nowrap;word-break:keep-all}
 .modak-pop .row>input[type=range]{flex:1 1 auto;width:0;min-width:52px;margin:0}
@@ -159,7 +159,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
   <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진</span><input type="file" id="pf" accept="image/*" hidden></div>
   <label>닉네임<input id="nn" maxlength="12" placeholder="닉네임"></label>
   <button class="pri" id="go">들어가기 →</button>
-  <div style="font-size:11px;color:var(--m);text-align:center">버전 b11.1</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
+  <div style="font-size:11px;color:var(--m);text-align:center">버전 b13</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
   
 </div>
 <div id="pm"><div id="pb"><div class="hd"><span>프로필 사진 조절</span><button class="ib" id="pxx" data-i="x"></button></div>
@@ -251,14 +251,30 @@ room={
   onPeers(f){ph=f}};
 function fire(j,l){if(ph)ph({peers:room.peers(),joined:j,left:l,updated:[]})}
 function setup(c){
-  c.on("open",()=>{conns[c.peer]=c;seen[c.peer]=Date.now();fails[c.peer]=0;nextTry[c.peer]=0;
-    if(Object.keys(conns).filter(i=>i!==c.peer).length+1>=maxN){delete conns[c.peer];c.send({t:"full"});setTimeout(()=>{try{c.close()}catch(e){}},400);return}c.send({t:"pr",d:pres});c._t0=Date.now();setTimeout(()=>{if(conns[c.peer]===c&&c.open)c.send({t:"pr",d:pres})},1500);c.send({t:"hist",d:hs2(300)});shareImg();if(cfgv)c.send({t:"cfg",d:cfgv});
-    if(mic)callTo(c.peer,mic,"mic");if(scr)callTo(c.peer,scr,"scr")});
-  c.on("data",m=>{if(!m||!m.t)return;seen[c.peer]=Date.now();if(!conns[c.peer]||!conns[c.peer].open)conns[c.peer]=c;
-    if(m.t==="pr"){const o=pmap[c.peer],n=!o,ch=n||JSON.stringify(o)!==JSON.stringify(m.d);pmap[c.peer]=m.d;if(ch)fire(n?[{peer:c.peer,presence:m.d}]:[],[])}
-    else hd[m.t]&&hd[m.t]({data:m.d,peer:c.peer,sameTab:false})});
-  const gone=()=>{if(conns[c.peer]!==c&&conns[c.peer])return;delete conns[c.peer];delete pmap[c.peer];drop(c.peer);fire([],[{peer:c.peer}])};
-  c.on("close",gone);c.on("error",()=>{if(!c.open)gone()})}
+  const id=c.peer;
+  const cleanupPending=()=>{if(pendC[id]===c){delete pendC[id];delete pending[id]}};
+  c.on("open",()=>{
+    cleanupPending();
+    // A live data channel must never be replaced by a duplicate attempt.
+    if(conns[id]&&conns[id]!==c&&conns[id].open){try{c.close()}catch(e){}return}
+    conns[id]=c;seen[id]=Date.now();fails[id]=0;nextTry[id]=0;
+    if(Object.keys(conns).filter(i=>i!==id).length+1>=maxN){delete conns[id];c.send({t:"full"});setTimeout(()=>{try{c.close()}catch(e){}},400);return}
+    c._t0=Date.now();c.send({t:"pr",d:pres});
+    setTimeout(()=>{if(conns[id]===c&&c.open)c.send({t:"pr",d:pres})},1500);
+    c.send({t:"hist",d:hs2(300)});shareImg();if(cfgv)c.send({t:"cfg",d:cfgv});
+    if(mic)callTo(id,mic,"mic");if(scr)callTo(id,scr,"scr");
+  });
+  c.on("data",m=>{if(!m||!m.t)return;seen[id]=Date.now();
+    if(conns[id]!==c)return;
+    if(m.t==="pr"){const o=pmap[id],fresh=!o,ch=fresh||JSON.stringify(o)!==JSON.stringify(m.d);pmap[id]=m.d;if(ch)fire(fresh?[{peer:id,presence:m.d}]:[],[])}
+    else hd[m.t]&&hd[m.t]({data:m.d,peer:id,sameTab:false});
+  });
+  const gone=()=>{cleanupPending();if(conns[id]!==c)return;
+    delete conns[id];delete pmap[id];drop(id);fire([],[{peer:id}]);
+    nextTry[id]=Date.now()+Math.min(60000,7000*Math.pow(2,Math.min(fails[id]||0,3)));
+  };
+  c.on("close",gone);c.on("error",gone);
+}
 function claim(n,name){
   if(n>10){$("jerr").textContent="방이 가득 찼어요 (최대 10명).";$("go").disabled=false;return}
   const p=new Peer(base+n);P=p;
@@ -271,11 +287,38 @@ function claim(n,name){
     room.on("full",()=>{try{sessionStorage.setItem("modak_full","1")}catch(e){}location.reload()});
     room.onPeers(onPeers);room.presence({name,av,mic:false,share:false});refreshOwnerUI();if(isRoomOwner()&&creatorMode)setCfg(jcfg[0],jcfg[1],Date.now());shareImg();setInterval(shareImg,15000);
     p.on("connection",setup);
-    p.on("call",c=>{c.answer();const ty=c.metadata&&c.metadata.ty;recvCalls[c.peer+ty]=c;
-      c.on("stream",st=>gotStream(c.peer,ty,st));c.on("close",()=>{if(recvCalls[c.peer+ty]===c){delete recvCalls[c.peer+ty];rmRemote(c.peer,ty)}})});
-    const scan=()=>{const now=Date.now();for(let k=1;k<=10;k++){if(k===n)continue;const id=base+k;if(!conns[id]&&!pending[id]&&now>(nextTry[id]||0)){pending[id]=1;setTimeout(()=>delete pending[id],6000);const c=p.connect(id,{reliable:true});pendC[id]=c;setup(c);setTimeout(()=>{if(!c.open){try{c.close()}catch(e){}}},7000)}}};
-    window._scan=scan;scan();tick(scan,4000);tick(()=>{const now=Date.now();if(P&&P.disconnected&&!P.destroyed){try{P.reconnect()}catch(e){}}Object.keys(conns).forEach(id=>{const c=conns[id];if(c.open)c.send({t:"pr",d:pres});if((seen[id]&&now-seen[id]>((c.peerConnection&&["connected","completed"].includes(c.peerConnection.iceConnectionState))?120000:15000))||(!pmap[id]&&c._t0&&now-c._t0>8000)){try{c.close()}catch(e){}}})},4000);tick(()=>Object.values(conns).forEach(c=>c.open&&c.send({t:"hist",d:hs2(20)})),12000)});
-  p.on("error",e=>{if(e.type==="unavailable-id"){p.destroy();claim(n+1,name)}else if(e.type==="peer-unavailable"){const m=/peer ([\w-]+)/.exec(e.message||"");if(m){const id=m[1];fails[id]=(fails[id]||0)+1;nextTry[id]=Date.now()+Math.min(60000,4000*Math.pow(2,fails[id]));try{pendC[id]&&pendC[id].close()}catch(x){}}}else{$("jerr").textContent="연결 오류: "+e.type;$("go").disabled=false}});
+    p.on("call",c=>{c.answer();const ty=c.metadata&&c.metadata.ty;const oldIncoming=recvCalls[c.peer+ty];recvCalls[c.peer+ty]=c;if(oldIncoming&&oldIncoming!==c)try{oldIncoming.close()}catch(e){};
+      c.on("stream",st=>{if(recvCalls[c.peer+ty]===c)gotStream(c.peer,ty,st)});
+      const closeIncoming=()=>{if(recvCalls[c.peer+ty]===c){delete recvCalls[c.peer+ty];rmRemote(c.peer,ty)}};
+      c.on("close",closeIncoming);c.on("error",closeIncoming)});
+    // Only the lower-numbered participant initiates data channels.
+    // This halves connection attempts and removes opposing duplicate dials.
+    const scan=()=>{
+      if(!P||P!==p||p.destroyed||p.disconnected||!p.open)return;
+      const now=Date.now();let active=Object.keys(pending).length;
+      for(let k=n+1;k<=maxN&&active<2;k++){
+        const id=base+k;if(conns[id]?.open||pending[id]||now<(nextTry[id]||0))continue;
+        pending[id]=now;active++;
+        let c;try{c=p.connect(id,{reliable:true})}catch(e){delete pending[id];nextTry[id]=Date.now()+12000;continue}
+        pendC[id]=c;setup(c);
+        setTimeout(()=>{if(pendC[id]===c&&!c.open){delete pendC[id];delete pending[id];
+          fails[id]=(fails[id]||0)+1;
+          nextTry[id]=Date.now()+Math.min(60000,8000*Math.pow(2,Math.min(fails[id],3)));
+          try{c.close()}catch(e){}
+        }},12000);
+      }
+    };
+    window._scan=scan;scan();tick(scan,5000);
+    tick(()=>{const now=Date.now();if(P&&P.disconnected&&!P.destroyed){try{P.reconnect()}catch(e){}}
+      Object.keys(conns).forEach(id=>{const c=conns[id];if(c.open)c.send({t:"pr",d:pres});
+        if((seen[id]&&now-seen[id]>45000)||(!pmap[id]&&c._t0&&now-c._t0>15000)){
+          try{c.close()}catch(e){}
+        }
+      });
+    },6000);
+    tick(()=>Object.values(conns).forEach(c=>c.open&&c.send({t:"hist",d:hs2(20)})),15000);
+  });
+  p.on("error",e=>{if(e.type==="unavailable-id"){p.destroy();claim(n+1,name)}else if(e.type==="peer-unavailable"){const m=/peer ([\w-]+)/.exec(e.message||"");if(m){const id=m[1];fails[id]=(fails[id]||0)+1;nextTry[id]=Date.now()+Math.min(60000,8000*Math.pow(2,Math.min(fails[id],3)));try{pendC[id]&&pendC[id].close()}catch(x){}delete pendC[id];delete pending[id]}}else{$("jerr").textContent="연결 오류: "+e.type;$("go").disabled=false}});
   p.on("disconnected",()=>{try{p.reconnect()}catch(e){}})}
 $("go").onclick=()=>{
   const code=$("rc").value.trim()||(()=>{const c=rcode();$("rc").value=c;return c})(),name=$("nn").value.trim()||"익명",er=$("jerr");
@@ -314,7 +357,7 @@ function onPeers(c){
   render();
 }
 function rmRemote(id,ty){if(ty==="mic"){document.querySelectorAll("#a"+id).forEach(e=>e.remove());return}delete streams[id];render();fire([],[])}
-function drop(id){rmRemote(id,"mic");rmRemote(id,"scr");["mic","scr"].forEach(t=>{if(calls[id+t]){try{calls[id+t].close()}catch(e){}delete calls[id+t]}})}
+function drop(id){rmRemote(id,"mic");rmRemote(id,"scr");["mic","scr"].forEach(t=>{const k=id+t;if(recvCalls[k]){try{recvCalls[k].close()}catch(e){}delete recvCalls[k]}});["mic","scr"].forEach(t=>{if(calls[id+t]){try{calls[id+t].close()}catch(e){}delete calls[id+t]}})}
 let sel=null,curS=null;const streams={},recvCalls={};
 function render(){const ids=Object.keys(streams);const id=streams[sel]?sel:(ids.find(i=>i!==me)||ids[0]);
   const mt=$("mt"),v=mt.querySelector("video"),st=id?streams[id]:null;document.body.classList.toggle("noshare",!st);
@@ -328,8 +371,19 @@ function render(){const ids=Object.keys(streams);const id=streams[sel]?sel:(ids.
   mt.querySelector(".cap").textContent=id===me?"내 화면":(p.name||"")+"의 화면";v.style.filter=bl?"blur("+bl+"px)":""}
 function chk(){render()}
 
-function callTo(id,st,ty){const k=id+ty;const old=calls[k];if(old&&old._src===st&&old.open!==false)return;
-  if(old)try{old.close()}catch(e){}const call=P.call(id,st,{metadata:{ty}});if(call){call._src=st;calls[k]=call;call.on("close",()=>{if(calls[k]===call)delete calls[k]})}}
+function callTo(id,st,ty){
+  if(!P||!P.open||P.disconnected||!conns[id]?.open||!st||!st.active)return;
+  const k=id+ty,old=calls[k];
+  if(old&&old._src===st&&!old._closed)return;
+  if(old){old._closed=true;try{old.close()}catch(e){}delete calls[k]}
+  let call;try{call=P.call(id,st,{metadata:{ty}})}catch(e){
+    console.warn("MODAK media connection postponed:",e);return;
+  }
+  if(!call)return;
+  call._src=st;call._closed=false;calls[k]=call;
+  const cleanup=()=>{call._closed=true;if(calls[k]===call)delete calls[k]};
+  call.on("close",cleanup);call.on("error",cleanup);
+}
 function addAll(st){const ty=st===mic?"mic":"scr";Object.keys(conns).forEach(id=>callTo(id,st,ty))}
 function rmAll(st){const ty=st===mic?"mic":"scr";Object.keys(calls).filter(k=>k.endsWith(ty)).forEach(k=>{try{calls[k].close()}catch(e){}delete calls[k]})}
 function gotStream(id,ty,st){const firstShare=ty!=="mic"&&!streams[id];
@@ -451,5 +505,12 @@ $("bm").innerHTML=ic("micoff");$("bs").innerHTML=ic("screenoff");$("bc").innerHT
 const tabs=()=>{$("tl").innerHTML=ic(document.body.classList.contains("nol")?"users":"chevL");$("tr").innerHTML=ic("chat")};tabs();
 $("tl").onclick=()=>{document.body.classList.toggle("nol");tabs()};$("tr").onclick=()=>document.body.classList.remove("nor");
 $("bc").onclick=$("bx").onclick=()=>document.body.classList.toggle("nor");
+window.addEventListener("pagehide",()=>{
+  Object.values(calls).forEach(c=>{try{c.close()}catch(e){}});
+  Object.values(recvCalls).forEach(c=>{try{c.close()}catch(e){}});
+  Object.values(conns).forEach(c=>{try{c.close()}catch(e){}});
+  Object.values(pendC).forEach(c=>{try{c.close()}catch(e){}});
+  try{P&&P.destroy()}catch(e){}
+});
 if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script></body></html>
