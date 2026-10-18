@@ -173,6 +173,22 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
 #tl:hover,#tl:focus-visible,#tr:hover,#tr:focus-visible{opacity:1;}
 @media (hover:none){#tl,#tr{opacity:1;}}
 @media (prefers-reduced-motion:reduce){#tl,#tr{transition:none;}}
+
+/* b23: chat emoji/sticker picker, preserving the current chat layout */
+#cf{display:flex;align-items:center;gap:6px}
+#cf #ci{flex:1;min-width:0;padding-right:12px}
+#cf #cs{position:static;transform:none;flex:none;padding:8px 10px}
+#emojiBtn{background:transparent;border:1px solid #ffffff25;color:var(--icon,#eee);border-radius:10px;min-width:34px;height:38px;cursor:pointer;display:grid;place-items:center;flex:none;padding:0}
+#emojiBtn svg{width:20px;height:20px;stroke:currentColor}
+#emojiPicker{position:absolute;right:10px;bottom:calc(100% - 3px);width:min(288px,calc(100vw - 32px));max-height:330px;display:none;flex-direction:column;z-index:9;background:#202127;border:1px solid #ffffff29;box-shadow:0 12px 30px #0007;border-radius:14px;padding:10px;gap:8px}
+#emojiPicker.open{display:flex}#emojiTabs{display:flex;gap:5px}#emojiTabs button{flex:1;border:1px solid #ffffff20;border-radius:8px;background:transparent;color:var(--t);padding:7px 5px;cursor:pointer;font-size:12px}
+#emojiTabs button.active{background:var(--a);color:var(--on,#111)}
+#emojiGrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;overflow:auto;min-height:80px;max-height:200px;align-content:start}
+#emojiGrid button{border:1px solid #ffffff12;background:#ffffff08;border-radius:9px;aspect-ratio:1;cursor:pointer;font-size:23px;display:grid;place-items:center;padding:3px;min-width:0;position:relative}
+#emojiGrid button img{display:block;max-width:100%;max-height:100%;object-fit:contain}
+#emojiGrid .emojiRemove{position:absolute;right:0;top:0;width:16px;height:16px;aspect-ratio:1;background:#403039;color:white;border-radius:50%;font-size:11px;padding:0;line-height:1}
+#emojiUploadRow{display:flex;gap:7px;align-items:center;justify-content:space-between;font-size:11px;color:var(--m)}#emojiUploadRow button{background:#ffffff12;border:1px solid #ffffff25;color:var(--t);border-radius:8px;padding:6px 9px;cursor:pointer;font-size:12px}
+.m .mb.stickerMsg{padding:8px;background:transparent!important}.stickerMsg img{display:block;max-width:136px;max-height:136px;object-fit:contain}.stickerMissing{font-size:12px;color:var(--m)}
 </style></head><body>
 <div id="bgi"></div><div id="dim"></div>
 <div id="join">
@@ -184,7 +200,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
   <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진</span><input type="file" id="pf" accept="image/*" hidden></div>
   <label>닉네임<input id="nn" maxlength="12" placeholder="닉네임"></label>
   <button class="pri" id="go">들어가기 →</button>
-  <div style="font-size:11px;color:var(--m);text-align:center">버전 b22</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
+  <div style="font-size:11px;color:var(--m);text-align:center">버전 b23</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
   
 </div>
 <div id="pm"><div id="pb"><div class="hd"><span>프로필 사진 조절</span><button class="ib" id="pxx" data-i="x"></button></div>
@@ -200,7 +216,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
   <main><div id="tiles"></div>
   <div id="stage"><div id="empty">아직 공유 중인 화면이 없어요.<br>아래 화면공유 버튼을 눌러 시작해요.</div><div class="tile" id="mt" style="display:none"><video autoplay playsinline></video><span class="cap"></span><button class="btnfs"></button></div></div>
   <aside id="side"><div id="sh"><button class="ib" id="bx" data-i="chevR"></button></div><div id="msgs"></div>
-    <div id="cf"><input id="ci" placeholder="메시지 보내기…" maxlength="500"><button class="btn" id="cs" data-i="up"></button></div></aside></main>
+    <div id="cf"><div id="emojiPicker" aria-label="이모티콘 선택" role="dialog"><div id="emojiTabs"><button type="button" data-etab="base" class="active">이모지</button><button type="button" data-etab="mine">내 이모티콘</button><button type="button" data-etab="shared">공유 보관함</button></div><div id="emojiGrid"></div><div id="emojiUploadRow"><span>PNG · GIF · WebP (최대 200KB)</span><button type="button" id="emojiUpload">+ 등록</button><input type="file" id="emojiFile" accept="image/png,image/gif,image/webp" hidden></div></div><input id="ci" placeholder="메시지 보내기…" maxlength="500"><button type="button" id="emojiBtn" title="이모티콘" aria-label="이모티콘"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 15c1.2 1.6 2.6 2.2 4 2.2s2.8-.6 4-2.2"/><path d="M9 9.2h.01M15 9.2h.01" stroke-width="3"/></svg></button><button class="btn" id="cs" data-i="up"></button></div></aside></main>
   <button class="tab" id="tl"></button><button class="tab" id="tr"></button>
   <div id="bar"><button id="bm" title="마이크"></button><button id="bs" title="화면·소리 공유"></button><button id="bc" title="채팅"></button><span class="vs"></span><button class="end" id="be" title="나가기"></button></div>
   <div id="audios"></div>
@@ -306,7 +322,7 @@ function setup(c){
     if(Object.keys(conns).filter(i=>i!==id).length+1>=maxN){delete conns[id];c.send({t:"full"});setTimeout(()=>{try{c.close()}catch(e){}},400);return}
     c._t0=Date.now();c.send({t:"pr",d:pres});
     setTimeout(()=>{if(conns[id]===c&&c.open)c.send({t:"pr",d:pres})},1500);
-    c.send({t:"hist",d:hs2(300)});shareImg();if(cfgv)c.send({t:"cfg",d:cfgv});
+    c.send({t:"hist",d:hs2(300)});syncStickers(c);shareImg();if(cfgv)c.send({t:"cfg",d:cfgv});
     if(mic)callTo(id,mic,"mic");if(scr)callTo(id,scr,"scr");
   });
   c.on("data",m=>{if(!m||!m.t)return;seen[id]=Date.now();
@@ -325,7 +341,7 @@ function claim(n,name){
   const p=new Peer(base+n);P=p;
   p.on("open",id=>{me=id;pmap[me]=pres;
     $("join").style.display="none";$("app").style.display="flex";$("roomCodeText").textContent=$("rc").value;
-    room.on("chat",m=>merge([m.data],true));room.on("hist",m=>merge(m.data));
+    room.on("chat",m=>merge([m.data],true));room.on("hist",m=>merge(m.data));room.on("stickerAsset",m=>receiveSticker(m.data));room.on("stickerDelete",m=>removeSticker(m.data,false));
     room.on("want",m=>{if(scr&&m.peer&&conns[m.peer])callTo(m.peer,scr,"scr")});loadChat();
     room.on("avt",m=>{if(m.data&&typeof m.data.img==="string"&&m.data.img.startsWith("data:image/")){if(avs[m.peer]!==m.data.img){avs[m.peer]=m.data.img;fire([],[])}}});
     room.on("cfg",m=>{const d=m.data;if(m.peer!==base+"1"||!d||!d.max)return;if(!cfgv||d.ts>cfgv.ts)setCfg(Math.min(10,Math.max(2,+d.max)),String(d.rn||"MODAK").slice(0,20),+d.ts||0,false)});
@@ -469,15 +485,50 @@ function renderChat(first){const box=$("msgs"),bot=first||box.scrollHeight-box.s
     if(dk!==day){day=dk;const d=document.createElement("div");d.className="m div";d.textContent=dt.getFullYear()+"년 "+(dt.getMonth()+1)+"월 "+dt.getDate()+"일";box.appendChild(d)}
     const cont=pv&&dk===day&&pv.u===m.u&&pv.n===m.n&&m.ts-pv.ts<120000&&!(i>0&&new Date(pv.ts).toDateString()!==dk);const e=document.createElement("div");e.className="m"+(m.u===myUid?" me":"")+(cont?" cont":"");
     const h=document.createElement("div");h.className="mh";const n=document.createElement("b");n.textContent=m.n;const t=document.createElement("span");t.textContent=dt.toTimeString().slice(0,5);h.append(n,t);
-    const x=document.createElement("div");x.className="mb";x.textContent=m.t;e.append(h,x);box.appendChild(e)});
+    const x=document.createElement("div");x.className="mb";if(m.s){x.classList.add("stickerMsg");const a=stickerAssets[m.s];if(a){const im=document.createElement("img");im.src=a.src;im.alt=a.name||"이모티콘";im.loading="lazy";x.appendChild(im)}else{const sp=document.createElement("span");sp.className="stickerMissing";sp.textContent="이모티콘을 불러오는 중…";x.appendChild(sp)}}else x.textContent=m.t;e.append(h,x);box.appendChild(e)});
   if(bot)box.scrollTop=box.scrollHeight}
 function merge(list,live){if(!Array.isArray(list))list=[list];const ids=new Set(hist.map(m=>m.id));let ch=false;
-  list.forEach(m=>{if(m&&m.id&&typeof m.t==="string"&&!ids.has(m.id)){const lo=hist.length?(hist[hist.length-1].o??hist[hist.length-1].ts):0,t0=+m.ts||Date.now();hist.push({id:String(m.id),ts:t0,o:live?Math.max(t0,lo):t0,u:String(m.u||""),n:String(m.n||"").slice(0,20),t:m.t.slice(0,500)});ids.add(m.id);ch=true;if(live&&String(m.u||"")!==myUid)beep("chat")}});
+  list.forEach(m=>{if(m&&m.id&&typeof m.t==="string"&&!ids.has(m.id)){const lo=hist.length?(hist[hist.length-1].o??hist[hist.length-1].ts):0,t0=+m.ts||Date.now();hist.push({id:String(m.id),ts:t0,o:live?Math.max(t0,lo):t0,u:String(m.u||""),n:String(m.n||"").slice(0,20),t:m.t.slice(0,500),s:typeof m.s==="string"?m.s.slice(0,100):""});ids.add(m.id);ch=true;if(live&&String(m.u||"")!==myUid)beep("chat")}});
   if(ch){hist.sort((a,b)=>(a.o??a.ts)-(b.o??b.ts));hist=hist.slice(-500);hsave();renderChat()}}
 function loadChat(){try{hist=JSON.parse(localStorage.getItem("modak_chat"+base)||"[]")}catch(e){hist=[]}renderChat(true)}
 function sendChat(){const t=$("ci").value.trim();if(!t)return;const p=names[me]||pres;room.emit("chat",{id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),ts:Date.now(),u:myUid,n:p.name||"",t});$("ci").value=""}
 $("cs").onclick=sendChat;$("ci").onkeydown=e=>{if(e.key==="Enter"&&!e.isComposing)sendChat()};
 
+
+
+/* b23: emoji and sticker gallery. Large files and persistent multi-device storage
+   need a real object storage backend; this lightweight version uses PeerJS. */
+const BASE_EMOJI=["😀","😄","🥹","😂","😍","😎","🤔","😭","😴","🥳","❤️","💖","👍","👏","🙏","🔥","🎉","✨","🐱","🐶","💀","👀","💪","🙌","😡","😇","😳","🫶","💕","✅","🍀","🍕","☕","🌙","😵","😏"];
+const stickerAssets={};
+let stickerTab="base";
+const stickerStoreKey="modak_stickers_b23";
+function persistStickers(){
+  try{const items=Object.values(stickerAssets).filter(a=>a.mine).slice(-15);localStorage.setItem(stickerStoreKey,JSON.stringify(items))}catch(e){note("저장 공간이 부족해서 이모티콘을 보관하지 못했어요.")}
+}
+try{const saved=JSON.parse(localStorage.getItem(stickerStoreKey)||"[]");if(Array.isArray(saved))saved.slice(-15).forEach(a=>{if(validSticker(a))stickerAssets[a.id]=a})}catch(e){}
+function validSticker(a){return a&&typeof a.id==="string"&&a.id.length<100&&typeof a.src==="string"&&a.src.length<280000&&/^data:image\/(png|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(a.src)}
+function receiveSticker(a){if(!validSticker(a))return;const old=stickerAssets[a.id];if(old)return;stickerAssets[a.id]={id:a.id,src:a.src,name:String(a.name||"이모티콘").slice(0,40),mine:false};paintStickers();renderChat()}
+function syncStickers(c){if(!c||!c.open)return;Object.values(stickerAssets).slice(-25).forEach(a=>{try{c.send({t:"stickerAsset",d:{id:a.id,src:a.src,name:a.name}})}catch(e){}})}
+function removeSticker(id,broadcast=true){if(typeof id!=="string"||!stickerAssets[id])return;const owned=stickerAssets[id].mine;delete stickerAssets[id];if(owned)persistStickers();if(broadcast&&room)room.emit("stickerDelete",id);paintStickers();renderChat()}
+function sendSticker(a){if(!room||!me)return;const p=names[me]||pres;room.emit("chat",{id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),ts:Date.now(),u:myUid,n:p.name||"",t:"",s:a.id});$("emojiPicker").classList.remove("open")}
+function paintStickers(){const grid=$("emojiGrid");if(!grid)return;grid.replaceChildren();document.querySelectorAll("#emojiTabs button").forEach(b=>b.classList.toggle("active",b.dataset.etab===stickerTab));
+  $("emojiUploadRow").style.display=stickerTab==="base"?"none":"flex";
+  if(stickerTab==="base"){BASE_EMOJI.forEach(symbol=>{const b=document.createElement("button");b.type="button";b.textContent=symbol;b.title=symbol;b.onclick=()=>{const inp=$("ci");const p=inp.selectionStart||inp.value.length;inp.value=inp.value.slice(0,p)+symbol+inp.value.slice(p);inp.focus();inp.setSelectionRange(p+symbol.length,p+symbol.length)};grid.appendChild(b)});return}
+  const entries=Object.values(stickerAssets).filter(a=>stickerTab==="shared"||a.mine).slice(-60);
+  if(!entries.length){const d=document.createElement("div");d.style.cssText="grid-column:1/-1;color:var(--m);font-size:12px;padding:12px";d.textContent="등록된 이모티콘이 없어요.";grid.appendChild(d);return}
+  entries.forEach(a=>{const wrap=document.createElement("div");wrap.style.cssText="position:relative;min-width:0";const b=document.createElement("button");b.style.width="100%";b.type="button";b.title=a.name||"이모티콘";const im=document.createElement("img");im.src=a.src;im.alt=a.name||"이모티콘";b.appendChild(im);b.onclick=()=>sendSticker(a);if(a.mine){const rm=document.createElement("button");rm.type="button";rm.className="emojiRemove";rm.textContent="×";rm.title="삭제";rm.onclick=e=>{e.stopPropagation();removeSticker(a.id)};wrap.appendChild(rm)}wrap.appendChild(b);grid.appendChild(wrap)})
+}
+$("emojiBtn").onclick=e=>{e.stopPropagation();$("emojiPicker").classList.toggle("open");paintStickers()};
+document.querySelectorAll("#emojiTabs button").forEach(b=>b.onclick=()=>{stickerTab=b.dataset.etab;paintStickers()});
+$("emojiUpload").onclick=()=>$("emojiFile").click();
+$("emojiFile").onchange=async e=>{const file=e.target.files?.[0];e.target.value="";if(!file)return;
+ if(!["image/png","image/gif","image/webp"].includes(file.type)){note("PNG, GIF, WebP 이미지만 등록할 수 있어요.");return}
+ if(file.size>200000){note("이모티콘은 200KB 이하만 등록할 수 있어요. GIF는 용량을 줄여주세요.");return}
+ if(Object.values(stickerAssets).filter(a=>a.mine).length>=15){note("내 이모티콘은 최대 15개까지 등록할 수 있어요.");return}
+ const reader=new FileReader();reader.onload=()=>{const src=String(reader.result||"");const item={id:myUid.slice(0,24)+"-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:file.name.slice(0,40),src,mine:true};if(!validSticker(item))return;stickerAssets[item.id]=item;persistStickers();if(room)room.emit("stickerAsset",{id:item.id,name:item.name,src:item.src});stickerTab="mine";paintStickers()};reader.readAsDataURL(file)
+};
+document.addEventListener("click",e=>{if(!$("emojiPicker").contains(e.target)&&!$("emojiBtn").contains(e.target))$("emojiPicker").classList.remove("open")});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("emojiPicker").classList.remove("open")});
 
 const R=document.documentElement.style;
 const PAL={"--a":["#b7d4a8","#a8c8ea","#e0a8c0","#e8c08e","#b4a7e8"],"--bg":["#17181c","#1b2118","#151c26","#241a22","#251f14","#ffffff"],"--stg":["#121316","#161c14","#111822","#1c1319","#1d1810","#2a2a33"],"--t":["#eceef2","#fff3d6","#ffd6e0","#d6ebff","#d8f0d0","#e4dcff"],"--icon":["#ffe9c9","#ffffff","#17181c","#d6ebff","#ffd6e0","#d8f0d0"]};
