@@ -1,5 +1,10 @@
-const C='modak-b25',F=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png'];
+const C='modak-b26',F=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(F)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))));self.clients.claim()});
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;
-  e.respondWith(fetch(e.request,{cache:'no-cache'}).then(r=>{const cp=r.clone();caches.open(C).then(c=>c.put(e.request,cp));return r}).catch(()=>caches.match(e.request)))});
+self.addEventListener('fetch',e=>{
+ if(e.request.method!=='GET'||new URL(e.request.url).origin!==location.origin)return;
+ if(e.request.mode==='navigate'){
+   e.respondWith(fetch(new Request(e.request,{cache:'no-store'})).then(r=>{if(r.ok){const cp=r.clone();caches.open(C).then(c=>c.put('./index.html',cp)).catch(()=>{})}return r}).catch(()=>caches.match('./index.html').then(r=>r||caches.match('./'))));return;
+ }
+ e.respondWith(fetch(e.request,{cache:'no-cache'}).then(r=>{if(r.ok){const cp=r.clone();caches.open(C).then(c=>c.put(e.request,cp)).catch(()=>{})}return r}).catch(()=>caches.match(e.request)));
+});

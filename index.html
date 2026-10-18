@@ -186,7 +186,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
 #emojiBtn{background:transparent;border:1px solid #ffffff25;color:var(--icon,#eee);border-radius:10px;min-width:34px;height:38px;cursor:pointer;display:grid;place-items:center;flex:none;padding:0}
 #emojiBtn svg{width:20px;height:20px;stroke:currentColor}
 #emojiPicker{position:absolute;right:10px;bottom:calc(100% - 3px);width:min(288px,calc(100vw - 32px));max-height:330px;display:none;flex-direction:column;z-index:9;background:#202127;border:1px solid #ffffff29;box-shadow:0 12px 30px #0007;border-radius:14px;padding:10px;gap:8px}
-#emojiPicker.open{display:flex}#emojiTabs{display:flex;gap:5px}#emojiTabs button{white-space:nowrap;min-width:0;flex:1;border:1px solid #ffffff20;border-radius:8px;background:transparent;color:var(--t);padding:7px 5px;cursor:pointer;font-size:12px}
+#emojiPicker.open{display:flex}#emojiTabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:100%;flex:0 0 auto;position:relative;z-index:1}#emojiTabs button{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1;border:1px solid #ffffff20;border-radius:8px;background:transparent;color:var(--t);padding:7px 5px;cursor:pointer;font-size:12px}
 #emojiTabs button.active{background:var(--a);color:var(--on,#111)}
 #emojiGrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;overflow:auto;min-height:80px;max-height:200px;align-content:start}
 #emojiGrid button{border:1px solid #ffffff12;background:#ffffff08;border-radius:9px;aspect-ratio:1;cursor:pointer;font-size:23px;display:grid;place-items:center;padding:3px;min-width:0;position:relative}
@@ -205,7 +205,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
   <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진</span><input type="file" id="pf" accept="image/*" hidden></div>
   <label>닉네임<input id="nn" maxlength="12" placeholder="닉네임"></label>
   <button class="pri" id="go">들어가기 →</button>
-  <div style="font-size:11px;color:var(--m);text-align:center">버전 b25</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
+  <div style="font-size:11px;color:var(--m);text-align:center">버전 b26</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
   
 </div>
 <div id="pm"><div id="pb"><div class="hd"><span>프로필 사진 조절</span><button class="ib" id="pxx" data-i="x"></button></div>
@@ -221,7 +221,7 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
   <main><div id="tiles"></div>
   <div id="stage"><div id="empty">아직 공유 중인 화면이 없어요.<br>아래 화면공유 버튼을 눌러 시작해요.</div><div class="tile" id="mt" style="display:none"><video autoplay playsinline></video><span class="cap"></span><button class="btnfs"></button></div></div>
   <aside id="side"><div id="sh"><button class="ib" id="bx" data-i="chevR"></button></div><div id="msgs"></div>
-    <div id="cf"><div id="emojiPicker" aria-label="이모티콘 선택" role="dialog"><div id="emojiTabs"><button type="button" data-etab="base" class="active">기본 이모지</button><button type="button" data-etab="shared">공유 보관함</button></div><div id="emojiGrid"></div><div id="emojiUploadRow"><span>PNG · GIF · WebP (최대 200KB)</span><button type="button" id="emojiUpload">+ 등록</button><input type="file" id="emojiFile" accept="image/png,image/gif,image/webp" hidden></div></div><input id="ci" placeholder="메시지 보내기…" maxlength="500"><button type="button" id="emojiBtn" title="이모티콘" aria-label="이모티콘"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 15c1.2 1.6 2.6 2.2 4 2.2s2.8-.6 4-2.2"/><path d="M9 9.2h.01M15 9.2h.01" stroke-width="3"/></svg></button><button class="btn" id="cs" data-i="up"></button></div></aside></main>
+    <div id="cf"><div id="emojiPicker" data-version="b26" aria-label="이모티콘 선택" role="dialog"><div id="emojiTabs"><button type="button" data-etab="base" class="active">기본 이모지</button><button type="button" data-etab="shared">공유 보관함</button></div><div id="emojiGrid"></div><div id="emojiUploadRow"><span>PNG · GIF · WebP (최대 200KB)</span><button type="button" id="emojiUpload">+ 등록</button><input type="file" id="emojiFile" accept="image/png,image/gif,image/webp" hidden></div></div><input id="ci" placeholder="메시지 보내기…" maxlength="500"><button type="button" id="emojiBtn" title="이모티콘" aria-label="이모티콘"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 15c1.2 1.6 2.6 2.2 4 2.2s2.8-.6 4-2.2"/><path d="M9 9.2h.01M15 9.2h.01" stroke-width="3"/></svg></button><button class="btn" id="cs" data-i="up"></button></div></aside></main>
   <button class="tab" id="tl"></button><button class="tab" id="tr"></button>
   <div id="bar"><button id="bm" title="마이크"></button><button id="bs" title="화면·소리 공유"></button><button id="bc" title="채팅"></button><span class="vs"></span><button class="end" id="be" title="나가기"></button></div>
   <div id="audios"></div>
@@ -820,5 +820,5 @@ window.addEventListener("pagehide",()=>{
   Object.values(pendC).forEach(c=>{try{c.close()}catch(e){}});
   try{P&&P.destroy()}catch(e){}
 });
-if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker"in navigator&&location.protocol.startsWith("http"))navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{});
 </script></body></html>
