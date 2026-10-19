@@ -202,14 +202,9 @@ body.noshare .pt{width:210px;height:200px;min-height:0;flex:none}
 #cf #emojiPicker #emojiUploadRow > button,#cf #emojiPicker #emojiGrid button{position:static;top:auto;right:auto;bottom:auto;left:auto;transform:none}
 #emojiPicker{overflow:hidden}#emojiGrid{min-height:0;overflow-y:auto;overscroll-behavior:contain}
 
-/* b28 campfire: decorative, isolated from streams and room layout */
-#campZone{position:fixed;left:18px;bottom:calc(88px + env(safe-area-inset-bottom,0px));width:var(--lw);height:162px;border-radius:12px;border:1px solid #ffffff27;background:#202332;z-index:2;overflow:hidden;pointer-events:none;box-shadow:0 6px 18px #0004}
-#campCanvas{width:100%;height:100%;display:block;image-rendering:pixelated}
-#campHide{position:absolute;top:5px;right:5px;z-index:2;pointer-events:auto;color:#eee;background:#17181bc9;border:1px solid #ffffff23;border-radius:6px;cursor:pointer;width:23px;height:23px}
-#campShow{display:none;position:fixed;left:18px;bottom:calc(95px + env(safe-area-inset-bottom,0px));z-index:3;border:1px solid #ffffff33;background:#282735;color:#ffcb9d;border-radius:10px;padding:7px 10px;cursor:pointer}
-body.noshare #campZone,body.noshare #campShow,body.nol #campZone,body.nol #campShow{display:none!important}
-@media(max-width:800px){#campZone,#campShow{display:none!important}}
-.camp-sound-row{display:flex;gap:8px;align-items:center;min-width:0}.camp-sound-row .btn{flex:0 0 112px;white-space:nowrap}.camp-sound-row input{flex:1;min-width:35px}.camp-sound-row span{font-size:11px;color:var(--m);width:34px;text-align:right}.camp-toggle{display:flex;gap:9px;align-items:center;font-size:12px;color:var(--t)}
+
+
+.chat-link{color:#b5d9ff;text-decoration:underline;text-underline-offset:2px;overflow-wrap:anywhere}.chat-link:hover{color:#e0efff}
 </style></head><body>
 <div id="bgi"></div><div id="dim"></div>
 <div id="join">
@@ -221,7 +216,7 @@ body.noshare #campZone,body.noshare #campShow,body.nol #campZone,body.nol #campS
   <div style="display:grid;justify-items:center;gap:6px;margin:4px 0"><div id="pv" title="눌러서 사진 선택" style="width:84px;height:84px;border-radius:50%;background:#0004;border:1px solid #fff3;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;color:var(--m)"></div><span style="font-size:12px;color:var(--m)">프로필 사진</span><input type="file" id="pf" accept="image/*" hidden></div>
   <label>닉네임<input id="nn" maxlength="12" placeholder="닉네임"></label>
   <button class="pri" id="go">들어가기 →</button>
-  <div style="font-size:11px;color:var(--m);text-align:center">버전 b28</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
+  <div style="font-size:11px;color:var(--m);text-align:center">버전 b29</div><div id="jerr" style="color:#ff9aa8;font-size:13px"></div>
   
 </div>
 <div id="pm"><div id="pb"><div class="hd"><span>프로필 사진 조절</span><button class="ib" id="pxx" data-i="x"></button></div>
@@ -232,16 +227,15 @@ body.noshare #campZone,body.noshare #campShow,body.nol #campZone,body.nol #campS
   <div class="bt"><button id="pcn">취소</button><button class="ok" id="psv">프로필 저장</button></div></div></div>
 <div id="app">
   <header><div class="logo" data-i="flame"></div><span id="rn">MODAK</span><span class="sp"></span><span id="cnt"></span>
-    <button class="ib" id="bcfg" data-i="menu" title="기능"></button><button class="ib" id="baudio" data-i="volume" title="음향"></button><button class="ib" id="btheme" data-i="swatch" title="꾸미기"></button><button class="ib" id="bmusic" data-i="music" title="함께 듣기" aria-label="함께 듣기"></button><button class="ib" id="bambience" data-i="flame" title="캠프파이어 사운드" aria-label="분위기 소리"></button><button class="ib" id="bcode"><span data-i="copy"></span> 초대 링크</button></header>
+    <button class="ib" id="bcfg" data-i="menu" title="기능"></button><button class="ib" id="baudio" data-i="volume" title="음향"></button><button class="ib" id="btheme" data-i="swatch" title="꾸미기"></button><button class="ib" id="bmusic" data-i="music" title="함께 듣기" aria-label="함께 듣기"></button><button class="ib" id="bcode"><span data-i="copy"></span> 초대 링크</button></header>
   <div id="note"></div>
   <main><div id="tiles"></div>
   <div id="stage"><div id="empty">아직 공유 중인 화면이 없어요.<br>아래 화면공유 버튼을 눌러 시작해요.</div><div class="tile" id="mt" style="display:none"><video autoplay playsinline></video><span class="cap"></span><button class="btnfs"></button></div></div>
   <aside id="side"><div id="sh"><button class="ib" id="bx" data-i="chevR"></button></div><div id="msgs"></div>
-    <div id="cf"><div id="emojiPicker" data-version="b28" aria-label="이모티콘 선택" role="dialog"><div id="emojiTabs"><button type="button" data-etab="base" class="active">기본 이모지</button><button type="button" data-etab="shared">공유 보관함</button></div><div id="emojiGrid"></div><div id="emojiUploadRow"><span>PNG · JPG · GIF · WebP (최대 200KB)</span><button type="button" id="emojiUpload">+ 등록</button><input type="file" id="emojiFile" accept="image/png,image/jpeg,image/gif,image/webp" hidden></div></div><input id="ci" placeholder="메시지 보내기…" maxlength="500"><button type="button" id="emojiBtn" title="이모티콘" aria-label="이모티콘"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 15c1.2 1.6 2.6 2.2 4 2.2s2.8-.6 4-2.2"/><path d="M9 9.2h.01M15 9.2h.01" stroke-width="3"/></svg></button><button class="btn" id="cs" data-i="up"></button></div></aside></main>
+    <div id="cf"><div id="emojiPicker" data-version="b29" aria-label="이모티콘 선택" role="dialog"><div id="emojiTabs"><button type="button" data-etab="base" class="active">기본 이모지</button><button type="button" data-etab="shared">공유 보관함</button></div><div id="emojiGrid"></div><div id="emojiUploadRow"><span>PNG · JPG · GIF · WebP (최대 200KB)</span><button type="button" id="emojiUpload">+ 등록</button><input type="file" id="emojiFile" accept="image/png,image/jpeg,image/gif,image/webp" hidden></div></div><input id="ci" placeholder="메시지 보내기…" maxlength="500"><button type="button" id="emojiBtn" title="이모티콘" aria-label="이모티콘"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M8 15c1.2 1.6 2.6 2.2 4 2.2s2.8-.6 4-2.2"/><path d="M9 9.2h.01M15 9.2h.01" stroke-width="3"/></svg></button><button class="btn" id="cs" data-i="up"></button></div></aside></main>
   <button class="tab" id="tl"></button><button class="tab" id="tr"></button>
   <div id="bar"><button id="bm" title="마이크"></button><button id="bs" title="화면·소리 공유"></button><button id="bc" title="채팅"></button><span class="vs"></span><button class="end" id="be" title="나가기"></button></div>
   <div id="audios"></div>
-  <div id="campZone" aria-label="모닥불 캠프파이어"><button type="button" id="campHide" title="모닥존 숨기기" aria-label="모닥존 숨기기">×</button><canvas id="campCanvas" width="240" height="150" aria-label="모닥불 주변의 참가자 도트 아바타"></canvas></div><button id="campShow" title="모닥존 보이기" aria-label="모닥존 보이기">♨</button>
   <div id="cfg" class="modak-pop">
    <section><h4>프로필</h4><button class="btn" id="bp">프로필 사진 변경</button></section>
    
@@ -278,11 +272,6 @@ body.noshare #campZone,body.noshare #campShow,body.nol #campZone,body.nol #campS
       <div class="musicvol" style="margin-top:12px"><span>내 음량</span><input type="range" id="musicVolume" min="0" max="100" value="45" aria-label="유튜브 개인 음량"><span id="musicVolText">45%</span></div>
       <div id="musicStatus" role="status">음악을 재생하려면 각자 브라우저에서 재생을 한 번 눌러야 할 수 있어요.</div>
     </section>
-   </div>
-   <div id="ambienceCfg" class="modak-pop">
-     <section><div class="camp-sound-row"><button type="button" class="btn" id="campFireBtn" aria-pressed="false">장작 소리 꺼짐</button><input type="range" id="campFireVolume" min="0" max="100" value="35" aria-label="장작 음량"><span id="campFirePct">35%</span></div></section>
-     <section><div class="camp-sound-row"><button type="button" class="btn" id="campRainBtn" aria-pressed="false">빗소리 꺼짐</button><input type="range" id="campRainVolume" min="0" max="100" value="35" aria-label="비 음량"><span id="campRainPct">35%</span></div></section>
-     <section><label class="camp-toggle"><input type="checkbox" id="campVisible" checked> 미니 모닥존 표시</label></section>
    </div>
    <div id="audioCfg" class="modak-pop">
     <section><h4>참가자별 음량</h4><div id="participantVolumes"></div></section>
@@ -368,7 +357,7 @@ function claim(n,name){
   const p=new Peer(base+n);P=p;
   p.on("open",id=>{me=id;pmap[me]=pres;
     $("join").style.display="none";$("app").style.display="flex";$("roomCodeText").textContent=$("rc").value;
-    room.on("chat",m=>merge([m.data],true));room.on("hist",m=>merge(m.data));room.on("stickerAsset",m=>receiveSticker(m.data));room.on("stickerDelete",m=>removeSticker(m.data,false));
+    room.on("chat",m=>merge([m.data],true));room.on("hist",m=>merge(m.data));room.on("stickerAsset",m=>receiveSticker(m.data));room.on("stickerChunk",m=>receiveStickerChunk(m.data));room.on("stickerWant",m=>{if(m.peer&&conns[m.peer]&&stickerAssets[m.data])sendStickerAsset(conns[m.peer],stickerAssets[m.data])});room.on("stickerDelete",m=>removeSticker(m.data,false));
     room.on("want",m=>{if(scr&&m.peer&&conns[m.peer])callTo(m.peer,scr,"scr")});loadChat();
     room.on("avt",m=>{if(m.data&&typeof m.data.img==="string"&&m.data.img.startsWith("data:image/")){if(avs[m.peer]!==m.data.img){avs[m.peer]=m.data.img;fire([],[])}}});
     room.on("cfg",m=>{const d=m.data;if(m.peer!==base+"1"||!d||!d.max)return;if(!cfgv||d.ts>cfgv.ts)setCfg(Math.min(10,Math.max(2,+d.max)),String(d.rn||"MODAK").slice(0,20),+d.ts||0,false)});
@@ -507,15 +496,30 @@ let hist=[];
 const myUid=(()=>{try{let u=localStorage.getItem("modak_uid");if(!u){u=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("modak_uid",u)}return u}catch(e){return Math.random().toString(36).slice(2)}})();
 const hs2=n=>hist.slice(-n);
 const hsave=()=>{try{localStorage.setItem("modak_chat"+base,JSON.stringify(hist))}catch(e){}};
+// Only HTTP(S) links are linkified; text always uses textContent (never HTML injection).
+function renderChatText(parent,message){
+ const re=/https?:\/\/[^\s<>"]+/gi;let last=0,match;
+ while((match=re.exec(message))){
+  if(match.index>last)parent.appendChild(document.createTextNode(message.slice(last,match.index)));
+  const raw=match[0],trimmed=raw.replace(/[.,!?;:)'\]}>]+$/g,"");
+  try{const url=new URL(trimmed);if(["http:","https:"].includes(url.protocol)){
+    const a=document.createElement("a");a.href=url.href;a.target="_blank";a.rel="noopener noreferrer nofollow";a.textContent=trimmed;a.className="chat-link";parent.appendChild(a);
+  }else parent.appendChild(document.createTextNode(trimmed));}
+  catch(e){parent.appendChild(document.createTextNode(trimmed));}
+  if(raw.length>trimmed.length)parent.appendChild(document.createTextNode(raw.slice(trimmed.length)));
+  last=match.index+raw.length;
+ }
+ if(last<message.length)parent.appendChild(document.createTextNode(message.slice(last)));
+}
 function renderChat(first){const box=$("msgs"),bot=first||box.scrollHeight-box.scrollTop-box.clientHeight<90;box.innerHTML="";let day="";
   hist.forEach((m,i)=>{const dt=new Date(m.ts),dk=dt.toDateString(),pv=hist[i-1];
     if(dk!==day){day=dk;const d=document.createElement("div");d.className="m div";d.textContent=dt.getFullYear()+"년 "+(dt.getMonth()+1)+"월 "+dt.getDate()+"일";box.appendChild(d)}
     const cont=pv&&dk===day&&pv.u===m.u&&pv.n===m.n&&m.ts-pv.ts<120000&&!(i>0&&new Date(pv.ts).toDateString()!==dk);const e=document.createElement("div");e.className="m"+(m.u===myUid?" me":"")+(cont?" cont":"");
     const h=document.createElement("div");h.className="mh";const n=document.createElement("b");n.textContent=m.n;const t=document.createElement("span");t.textContent=dt.toTimeString().slice(0,5);h.append(n,t);
-    const x=document.createElement("div");x.className="mb";if(m.s){x.classList.add("stickerMsg");const a=stickerAssets[m.s];if(a){const im=document.createElement("img");im.src=a.src;im.alt=a.name||"이모티콘";im.loading="lazy";x.appendChild(im)}else{const sp=document.createElement("span");sp.className="stickerMissing";sp.textContent="이모티콘을 불러오는 중…";x.appendChild(sp)}}else x.textContent=m.t;e.append(h,x);box.appendChild(e)});
+    const x=document.createElement("div");x.className="mb";if(m.s){x.classList.add("stickerMsg");const a=stickerAssets[m.s];if(a){const im=document.createElement("img");im.src=a.src;im.alt=a.name||"이모티콘";im.loading="lazy";x.appendChild(im)}else{const sp=document.createElement("span");sp.className="stickerMissing";sp.textContent="이모티콘을 불러오는 중…";x.appendChild(sp);requestSticker(m.s)}}else renderChatText(x,m.t);e.append(h,x);box.appendChild(e)});
   if(bot)box.scrollTop=box.scrollHeight}
 function merge(list,live){if(!Array.isArray(list))list=[list];const ids=new Set(hist.map(m=>m.id));let ch=false;
-  list.forEach(m=>{if(m&&m.id&&typeof m.t==="string"&&!ids.has(m.id)){const lo=hist.length?(hist[hist.length-1].o??hist[hist.length-1].ts):0,t0=+m.ts||Date.now();hist.push({id:String(m.id),ts:t0,o:live?Math.max(t0,lo):t0,u:String(m.u||""),n:String(m.n||"").slice(0,20),t:m.t.slice(0,500),s:typeof m.s==="string"?m.s.slice(0,100):""});ids.add(m.id);ch=true;if(live&&String(m.u||"")!==myUid){const emo=emojiSoundFromText(m.t);if(emo)playEmojiSfx(emo);else beep("chat")}}});
+  list.forEach(m=>{if(m&&m.id&&typeof m.t==="string"&&!ids.has(m.id)){const lo=hist.length?(hist[hist.length-1].o??hist[hist.length-1].ts):0,t0=+m.ts||Date.now();hist.push({id:String(m.id),ts:t0,o:live?Math.max(t0,lo):t0,u:String(m.u||""),n:String(m.n||"").slice(0,20),t:m.t.slice(0,500),s:typeof m.s==="string"?m.s.slice(0,100):""});ids.add(m.id);ch=true;if(m.s&&!stickerAssets[m.s])requestSticker(m.s);if(live&&String(m.u||"")!==myUid){const emo=emojiSoundFromText(m.t);if(emo)playEmojiSfx(emo);else beep("chat")}}});
   if(ch){hist.sort((a,b)=>(a.o??a.ts)-(b.o??b.ts));hist=hist.slice(-500);hsave();renderChat()}}
 function loadChat(){try{hist=JSON.parse(localStorage.getItem("modak_chat"+base)||"[]")}catch(e){hist=[]}renderChat(true)}
 function sendChat(){const t=$("ci").value.trim();if(!t)return;const p=names[me]||pres;room.emit("chat",{id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),ts:Date.now(),u:myUid,n:p.name||"",t});$("ci").value=""}
@@ -570,8 +574,36 @@ function persistStickers(){
 }
 try{const saved=JSON.parse(localStorage.getItem(stickerStoreKey)||"[]");if(Array.isArray(saved))saved.slice(-15).forEach(a=>{if(validSticker(a))stickerAssets[a.id]=a})}catch(e){}
 function validSticker(a){return a&&typeof a.id==="string"&&a.id.length<100&&typeof a.src==="string"&&a.src.length<280000&&/^data:image\/(png|jpeg|gif|webp);base64,[A-Za-z0-9+/=]+$/.test(a.src)}
+// Small ordered chunks avoid large PeerJS DataConnection payloads.
+const stickerIncoming=new Map(),stickerWantAt=new Map();
+function sendStickerAsset(conn,asset){
+ if(!conn?.open||!validSticker(asset))return;
+ const src=asset.src,step=8000,total=Math.ceil(src.length/step);
+ for(let i=0;i<total;i++){
+   const payload={id:asset.id,name:asset.name,i,total,part:src.slice(i*step,(i+1)*step)};
+   // Spread writes across the event loop so the data channel does not overflow.
+   setTimeout(()=>{if(conn.open)try{conn.send({t:"stickerChunk",d:payload})}catch(e){}},i*35);
+ }
+}
+function broadcastStickerAsset(asset){Object.values(conns).filter(c=>c.open).forEach(c=>sendStickerAsset(c,asset))}
+function requestSticker(id){
+ if(typeof id!=="string"||!id||stickerAssets[id])return;
+ const now=Date.now();if(now-(stickerWantAt.get(id)||0)<4000)return;
+ stickerWantAt.set(id,now);
+ Object.values(conns).filter(c=>c.open).forEach(c=>{try{c.send({t:"stickerWant",d:id})}catch(e){}});
+}
+function receiveStickerChunk(d){
+ if(!d||typeof d.id!=="string"||d.id.length>100||stickerAssets[d.id]||!Number.isInteger(d.i)||!Number.isInteger(d.total)||d.total<1||d.total>40||d.i<0||d.i>=d.total||typeof d.part!=="string"||d.part.length>8000)return;
+ let entry=stickerIncoming.get(d.id);
+ if(!entry||entry.total!==d.total){entry={total:d.total,name:String(d.name||"이모티콘").slice(0,40),parts:Array(d.total).fill(null),at:Date.now()};stickerIncoming.set(d.id,entry)}
+ entry.parts[d.i]=d.part;
+ if(entry.parts.every(p=>typeof p==="string")){
+   stickerIncoming.delete(d.id);receiveSticker({id:d.id,src:entry.parts.join(""),name:entry.name});
+ }
+ if(stickerIncoming.size>50)for(const [id,v] of stickerIncoming)if(Date.now()-v.at>30000)stickerIncoming.delete(id);
+}
 function receiveSticker(a){if(!validSticker(a))return;const old=stickerAssets[a.id];if(old)return;stickerAssets[a.id]={id:a.id,src:a.src,name:String(a.name||"이모티콘").slice(0,40),mine:false};paintStickers();renderChat()}
-function syncStickers(c){if(!c||!c.open)return;Object.values(stickerAssets).slice(-25).forEach(a=>{try{c.send({t:"stickerAsset",d:{id:a.id,src:a.src,name:a.name}})}catch(e){}})}
+function syncStickers(c){if(!c||!c.open)return;Object.values(stickerAssets).slice(-25).forEach(a=>sendStickerAsset(c,a))}
 function removeSticker(id,broadcast=true){if(typeof id!=="string"||!stickerAssets[id])return;const owned=stickerAssets[id].mine;delete stickerAssets[id];if(owned)persistStickers();if(broadcast&&room)room.emit("stickerDelete",id);paintStickers();renderChat()}
 function sendSticker(a){if(!room||!me)return;const p=names[me]||pres;room.emit("chat",{id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),ts:Date.now(),u:myUid,n:p.name||"",t:"",s:a.id});$("emojiPicker").classList.remove("open")}
 function paintStickers(){const grid=$("emojiGrid");if(!grid)return;grid.replaceChildren();document.querySelectorAll("#emojiTabs button").forEach(b=>b.classList.toggle("active",b.dataset.etab===stickerTab));
@@ -588,7 +620,7 @@ $("emojiFile").onchange=async e=>{const file=e.target.files?.[0];e.target.value=
  if(!["image/png","image/jpeg","image/gif","image/webp"].includes(file.type)){note("PNG, JPG, GIF, WebP 이미지만 등록할 수 있어요.");return}
  if(file.size>200000){note("이모티콘은 200KB 이하만 등록할 수 있어요. GIF는 용량을 줄여주세요.");return}
  if(Object.values(stickerAssets).filter(a=>a.mine).length>=15){note("내 이모티콘은 최대 15개까지 등록할 수 있어요.");return}
- const reader=new FileReader();reader.onload=()=>{const src=String(reader.result||"");const item={id:myUid.slice(0,24)+"-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:file.name.slice(0,40),src,mine:true};if(!validSticker(item))return;stickerAssets[item.id]=item;persistStickers();if(room)room.emit("stickerAsset",{id:item.id,name:item.name,src:item.src});stickerTab="shared";paintStickers()};reader.readAsDataURL(file)
+ const reader=new FileReader();reader.onload=()=>{const src=String(reader.result||"");const item={id:myUid.slice(0,24)+"-"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:file.name.slice(0,40),src,mine:true};if(!validSticker(item))return;stickerAssets[item.id]=item;persistStickers();if(room)broadcastStickerAsset(item);stickerTab="shared";paintStickers()};reader.readAsDataURL(file)
 };
 document.addEventListener("click",e=>{if(!$("emojiPicker").contains(e.target)&&!$("emojiBtn").contains(e.target))$("emojiPicker").classList.remove("open")});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")$("emojiPicker").classList.remove("open")});
@@ -603,10 +635,10 @@ document.querySelectorAll("#themeCfg .sw").forEach(w=>{const k=w.dataset.v;
   const o=ld(k);if(o)R.setProperty(k,o)});
 function setBg(u){$("bgi").style.backgroundImage=u?"url("+u+")":"";sv("bgi",u&&u.length<400000?u:"")}
 {const u=ld("bgi");if(u)setBg(u);const d=ld("dim");if(d){$("bd").value=d;R.setProperty("--dim",d/100)}const l=ld("lw");if(l){$("lw").value=l;R.setProperty("--lw",l+"px")}}
-const popupIds=["cfg","audioCfg","themeCfg","musicCfg","ambienceCfg"];
-function togglePopup(id){const el=$(id),was=el.style.display==="block";popupIds.forEach(k=>$(k).style.display="none");if(!was){el.style.display="block";const btn=$({cfg:"bcfg",audioCfg:"baudio",themeCfg:"btheme",musicCfg:"bmusic",ambienceCfg:"bambience"}[id]);const r=btn.getBoundingClientRect();el.style.right=Math.max(12,Math.min(innerWidth-328,innerWidth-r.right))+"px";}}
-$("bcfg").onclick=()=>togglePopup("cfg");$("baudio").onclick=()=>togglePopup("audioCfg");$("btheme").onclick=()=>togglePopup("themeCfg");$("bmusic").onclick=()=>togglePopup("musicCfg");$("bambience").onclick=()=>togglePopup("ambienceCfg");
-document.addEventListener("pointerdown",e=>{if(popupIds.some(k=>$(k).contains(e.target))||["bcfg","baudio","btheme","bmusic","bambience"].some(k=>$(k).contains(e.target)))return;popupIds.forEach(k=>$(k).style.display="none")});
+const popupIds=["cfg","audioCfg","themeCfg","musicCfg"];
+function togglePopup(id){const el=$(id),was=el.style.display==="block";popupIds.forEach(k=>$(k).style.display="none");if(!was){el.style.display="block";const btn=$({cfg:"bcfg",audioCfg:"baudio",themeCfg:"btheme",musicCfg:"bmusic"}[id]);const r=btn.getBoundingClientRect();el.style.right=Math.max(12,Math.min(innerWidth-328,innerWidth-r.right))+"px";}}
+$("bcfg").onclick=()=>togglePopup("cfg");$("baudio").onclick=()=>togglePopup("audioCfg");$("btheme").onclick=()=>togglePopup("themeCfg");$("bmusic").onclick=()=>togglePopup("musicCfg");
+document.addEventListener("pointerdown",e=>{if(popupIds.some(k=>$(k).contains(e.target))||["bcfg","baudio","btheme","bmusic"].some(k=>$(k).contains(e.target)))return;popupIds.forEach(k=>$(k).style.display="none")});
 $("lw").oninput=e=>{R.setProperty("--lw",e.target.value+"px");sv("lw",e.target.value)};
 $("bd").oninput=e=>{R.setProperty("--dim",e.target.value/100);sv("dim",e.target.value)};
 $("ba").onclick=()=>{const u=$("bu").value.trim();if(u)setBg(u)};$("br").onclick=()=>setBg("");
@@ -830,68 +862,6 @@ $("musicVolume").oninput=e=>{const n=+e.target.value;$("musicVolText").textConte
 renderQueue();
 // The YouTube embed may require a user gesture to begin audible playback.
 
-
-// b28: Lightweight local ambient sound mixer; separate from peer media streams.
-const campKey="modak_camp_b28";
-let campPrefs={fire:false,rain:false,fireVol:35,rainVol:35,visible:true};
-try{Object.assign(campPrefs,JSON.parse(localStorage.getItem(campKey)||"{}"))}catch(e){}
-const saveCamp=()=>{try{localStorage.setItem(campKey,JSON.stringify(campPrefs))}catch(e){}};
-let campAudio=null,campFireGain=null,campRainGain=null,campNoise=null,campCrackleTimer=0;
-function initCampAudio(){
- if(campAudio)return;
- const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;
- campAudio=new AC();const rate=campAudio.sampleRate;
- const buffer=campAudio.createBuffer(1,rate*3,rate),data=buffer.getChannelData(0);
- for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;
- const sound=(type,freq)=>{const src=campAudio.createBufferSource();src.buffer=buffer;src.loop=true;const filter=campAudio.createBiquadFilter();filter.type=type;filter.frequency.value=freq;const gain=campAudio.createGain();gain.gain.value=0;src.connect(filter);filter.connect(gain);gain.connect(campAudio.destination);src.start();return gain};
- campFireGain=sound("lowpass",240);campRainGain=sound("highpass",750);
- campCrackleTimer=setInterval(()=>{
-   if(!campPrefs.fire||!campAudio||campAudio.state!=="running")return;
-   const t=campAudio.currentTime,osc=campAudio.createOscillator(),gain=campAudio.createGain();osc.type="triangle";osc.frequency.value=70+Math.random()*100;
-   const v=.015*(campPrefs.fireVol/100);gain.gain.setValueAtTime(.00001,t);gain.gain.linearRampToValueAtTime(v,t+.008);gain.gain.exponentialRampToValueAtTime(.00001,t+.055);
-   osc.connect(gain);gain.connect(campAudio.destination);osc.start(t);osc.stop(t+.06);
- },220);
-}
-function updateCampSound(){
- $("campFireBtn").textContent="장작 소리 "+(campPrefs.fire?"켜짐":"꺼짐");$("campRainBtn").textContent="빗소리 "+(campPrefs.rain?"켜짐":"꺼짐");
- $("campFireBtn").setAttribute("aria-pressed",String(campPrefs.fire));$("campRainBtn").setAttribute("aria-pressed",String(campPrefs.rain));
- $("campFirePct").textContent=campPrefs.fireVol+"%";$("campRainPct").textContent=campPrefs.rainVol+"%";
- if(campAudio){campFireGain.gain.setTargetAtTime(campPrefs.fire?campPrefs.fireVol/100*.28:0,campAudio.currentTime,.07);campRainGain.gain.setTargetAtTime(campPrefs.rain?campPrefs.rainVol/100*.22:0,campAudio.currentTime,.07)}saveCamp();
-}
-for(const [key,btn] of [["fire","campFireBtn"],["rain","campRainBtn"]])$(btn).onclick=async()=>{initCampAudio();try{await campAudio?.resume()}catch(e){}campPrefs[key]=!campPrefs[key];updateCampSound()};
-for(const [key,id] of [["fireVol","campFireVolume"],["rainVol","campRainVolume"]]){$(id).value=campPrefs[key];$(id).oninput=()=>{campPrefs[key]=+$(id).value;updateCampSound()}}
-$("campVisible").checked=campPrefs.visible;
-function campVisibility(){const v=campPrefs.visible;$("campZone").style.display=v?"block":"none";$("campShow").style.display=v?"none":"block";$("campVisible").checked=v;saveCamp()}
-$("campHide").onclick=()=>{campPrefs.visible=false;campVisibility()};$("campShow").onclick=()=>{campPrefs.visible=true;campVisibility()};
-$("campVisible").onchange=e=>{campPrefs.visible=e.target.checked;campVisibility()};campVisibility();updateCampSound();
-// Compact pixel scene. No large image assets, no impact on WebRTC streams.
-const campCanvas=$("campCanvas"),campG=campCanvas.getContext("2d");campG.imageSmoothingEnabled=false;
-function drawCamp(){
- const g=campG,W=240,H=150;if(!g)return;const s=4;
- const rect=(x,y,w,h,color)=>{g.fillStyle=color;g.fillRect(Math.round(x/s)*s,Math.round(y/s)*s,Math.max(s,Math.round(w/s)*s),Math.max(s,Math.round(h/s)*s))};
- const at=Date.now(),pulse=Math.floor(at/450)%2;
- g.fillStyle="#292d42";g.fillRect(0,0,W,H);
- for(let i=0;i<22;i++){const x=(i*59+18)%W,y=(i*17+9)%71;rect(x,y,2,2,i%4===0?"#c8bcc5":"#776f85")}
- rect(0,105,W,45,"#434350");rect(0,123,W,27,"#464654");
- for(let i=0;i<12;i++)rect(i*22+6,129+(i%3)*4,8,4,"#575564");
- // Fire halo and layered wood.
- g.fillStyle="rgba(250,145,73,.12)";g.beginPath();g.arc(120,111,38,0,Math.PI*2);g.fill();
- rect(96,124,48,7,"#614339");rect(104,130,37,7,"#8b6044");rect(99,133,44,5,"#493733");
- rect(111,102+pulse*3,23,25,"#c65a31");rect(115,94-pulse*3,15,32,"#f6a443");rect(119,105,8,21,"#ffe5a0");rect(108,114,8,10,"#ee8040");
- // Seated individual participants, no effect on participant video cards.
- const peers=room&&me?room.peers().slice(0,10):[];
- const count=Math.max(1,peers.length);const colors=["#d0a3a5","#9eb8c9","#a4b89a","#d8b484","#baa6cf","#a8bec0","#bca48b","#e2a78c","#9c9bbf","#b6cda5"];
- const points=[[48,91],[184,91],[28,111],[203,111],[68,63],[165,63],[19,67],[209,67],[79,114],[156,114]];
- for(let i=0;i<count;i++){
-  const [x,y]=points[i],col=colors[i%colors.length],bob=(Math.floor(at/1200)+i)%4===0?2:0;
-  rect(x-10,y+14,20,10,"#493f46");rect(x-9,y-1+bob,19,20,col);rect(x-7,y-16+bob,16,18,"#e9bda3");
-  rect(x-9,y-18+bob,19,8,i%3===0?"#59433e":i%3===1?"#b17f60":"#35343f");
-  rect(x-3,y-8+bob,3,3,"#3b3438");rect(x+5,y-8+bob,3,3,"#3b3438");
-  if(i<peers.length){const name=String(peers[i].presence?.name||"친구").slice(0,5);g.fillStyle="#f4e7df";g.font="10px sans-serif";g.textAlign="center";g.fillText(name,x,y+37)}
- }
-}
-drawCamp();const campRenderLoop=setInterval(()=>{if($("app").style.display!=="none"&&campPrefs.visible&&!document.hidden)drawCamp()},550);
-window.addEventListener("pagehide",()=>{clearInterval(campCrackleTimer);clearInterval(campRenderLoop);try{campAudio?.close()}catch(e){}});
 
 pvSet();document.querySelectorAll("[data-i]").forEach(e=>e.innerHTML=ic(e.dataset.i));
 $("bm").innerHTML=ic("micoff");$("bs").innerHTML=ic("screenoff");$("bc").innerHTML=ic("chat");$("be").innerHTML=ic("end");
